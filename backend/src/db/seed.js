@@ -2,6 +2,7 @@ import 'dotenv/config';
 import bcrypt from 'bcryptjs';
 import pg from 'pg';
 import { drizzle } from 'drizzle-orm/node-postgres';
+import { eq } from 'drizzle-orm';
 import * as schema from './schema.js';
 
 const { Pool } = pg;
@@ -39,6 +40,20 @@ async function seed() {
   console.log('\n🌱 Memulai seeding data...\n');
 
   try {
+    // Cek apakah user sudah ada (hindari duplikasi)
+    const existingUser = await db.select().from(schema.users).where(eq(schema.users.email, 'dimas@tanismart.com'));
+    
+    if (existingUser.length > 0) {
+      console.log('ℹ️  Data seed sudah ada. Tidak ada perubahan.\n');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('  Login Credentials:');
+      console.log('  Email   : dimas@tanismart.com');
+      console.log('  Password: password123');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+      await pool.end();
+      return;
+    }
+
     // === USERS ===
     const hashedPassword = await bcrypt.hash('password123', 10);
     const [user] = await db.insert(schema.users).values({
