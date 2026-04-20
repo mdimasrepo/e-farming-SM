@@ -1,27 +1,40 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Leaf, Lock, Mail, ArrowRight, Loader } from 'lucide-react';
-import { loginAPI, setAuth } from '../utils/api';
+import { Leaf, Lock, Mail, User, ArrowRight, Loader } from 'lucide-react';
+import { registerAPI, setAuth } from '../utils/api';
 import './Login.css';
 
-export default function Login() {
+export default function Register() {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
     setError('');
+
+    if (password !== confirmPassword) {
+      setError('Password dan konfirmasi password tidak cocok.');
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('Password minimal 6 karakter.');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const data = await loginAPI(email, password);
+      const data = await registerAPI(name, email, password);
       setAuth(data.token, data.user);
       navigate('/dashboard');
     } catch (err) {
-      setError(err.message || 'Login gagal. Periksa email dan password Anda.');
+      setError(err.message || 'Registrasi gagal. Coba lagi.');
     } finally {
       setLoading(false);
     }
@@ -35,31 +48,43 @@ export default function Login() {
           <h1 className="brand-title">Tani.Smart</h1>
         </div>
         <div className="left-content">
-          <h2 className="left-headline">Masa Depan<br/>Pertanian Ada<br/><span className="text-gradient">Di Tangan Anda</span></h2>
-          <p className="left-sub">Kelola lahan, pantau tanaman, dan tingkatkan hasil panen dengan teknologi presisi yang dirancang khusus untuk petani modern.</p>
+          <h2 className="left-headline">Bergabung<br/>Bersama<br/><span className="text-gradient">Petani Cerdas</span></h2>
+          <p className="left-sub">Daftarkan akun Anda dan mulai kelola pertanian dengan lebih efisien menggunakan teknologi modern.</p>
         </div>
         <div className="login-footer">
           <p>&copy; 2026 Tani.Smart System</p>
         </div>
-        {/* Decorative elements */}
         <div className="blob blob-1"></div>
         <div className="blob blob-2"></div>
       </div>
       <div className="login-split login-right">
         <div className="login-form-wrapper glass-panel">
           <div className="form-header">
-            <h3>Selamat Datang</h3>
-            <p>Silakan masuk ke akun Anda untuk melanjutkan</p>
+            <h3>Buat Akun Baru</h3>
+            <p>Isi data diri Anda untuk mendaftar</p>
           </div>
           {error && <div className="login-error">{error}</div>}
-          <form onSubmit={handleLogin} className="login-form">
+          <form onSubmit={handleRegister} className="login-form">
+            <div className="input-group">
+              <label>Nama Lengkap</label>
+              <div className="input-wrapper">
+                <User className="input-icon" size={18} />
+                <input 
+                  type="text" 
+                  placeholder="Nama lengkap Anda"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
             <div className="input-group">
               <label>Email</label>
               <div className="input-wrapper">
                 <Mail className="input-icon" size={18} />
                 <input 
                   type="email" 
-                  placeholder="dimas@tanismart.com"
+                  placeholder="email@contoh.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -72,25 +97,31 @@ export default function Login() {
                 <Lock className="input-icon" size={18} />
                 <input 
                   type="password" 
-                  placeholder="••••••••"
+                  placeholder="Minimal 6 karakter"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                 />
               </div>
             </div>
-            <div className="form-actions">
-              <label className="remember-me">
-                <input type="checkbox" />
-                <span>Ingat saya</span>
-              </label>
-              <a href="#" className="forgot-password">Lupa Password?</a>
+            <div className="input-group">
+              <label>Konfirmasi Password</label>
+              <div className="input-wrapper">
+                <Lock className="input-icon" size={18} />
+                <input 
+                  type="password" 
+                  placeholder="Ulangi password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                />
+              </div>
             </div>
             <button type="submit" className="btn-primary login-btn" disabled={loading}>
-              {loading ? <><Loader size={18} className="spin" /> Memproses...</> : <>Masuk Sekarang <ArrowRight size={18} /></>}
+              {loading ? <><Loader size={18} className="spin" /> Memproses...</> : <>Daftar Sekarang <ArrowRight size={18} /></>}
             </button>
             <p className="auth-switch">
-              Belum punya akun? <Link to="/register" className="auth-link">Daftar di sini</Link>
+              Sudah punya akun? <Link to="/login" className="auth-link">Masuk di sini</Link>
             </p>
           </form>
         </div>

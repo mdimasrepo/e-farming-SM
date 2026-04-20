@@ -273,3 +273,23 @@
   cursor: not-allowed;
 }
 
+.auth-switch {
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+.auth-link {
+  color: var(--emerald-primary);
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.auth-link:hover {
+  color: var(--emerald-hover);
+  text-decoration: underline;
+}
+
+
