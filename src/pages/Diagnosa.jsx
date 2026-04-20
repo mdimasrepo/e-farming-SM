@@ -153,9 +153,17 @@ export default function Diagnosa() {
           {result.diagnosis ? (
             <>
               <div className="diagnosa-result-card glass-panel">
-                <div className="result-badge">
-                  <Bug size={24} />
-                  <span>Diagnosa Utama</span>
+                <div className="result-badge-row">
+                  <div className="result-badge">
+                    <Bug size={24} />
+                    <span>Diagnosa Utama</span>
+                  </div>
+                  {result.source === 'ai' && (
+                    <span className="ai-badge">🤖 AI — {result.model}</span>
+                  )}
+                  {result.source === 'rule-based' && (
+                    <span className="rule-badge">📋 Expert System</span>
+                  )}
                 </div>
                 <h2>{result.diagnosis.name}</h2>
                 <div className="result-meta-row">
@@ -171,6 +179,9 @@ export default function Diagnosa() {
                 <div className="result-detail">
                   <p><strong>Penyebab:</strong> {result.diagnosis.cause}</p>
                   <p><strong>Gejala cocok:</strong> {result.diagnosis.matchedSymptoms.join(', ')}</p>
+                  {result.diagnosis.explanation && (
+                    <p className="ai-explanation"><strong>Analisis AI:</strong> {result.diagnosis.explanation}</p>
+                  )}
                 </div>
 
                 <div className="recommendation">
@@ -179,6 +190,13 @@ export default function Diagnosa() {
                     {result.diagnosis.recommendations.map((r, i) => <li key={i}>{r}</li>)}
                   </ul>
                 </div>
+
+                {result.diagnosis.prevention && (
+                  <div className="prevention-box">
+                    <h4><Shield size={16} /> Pencegahan:</h4>
+                    <p>{result.diagnosis.prevention}</p>
+                  </div>
+                )}
               </div>
 
               {result.alternatives && result.alternatives.length > 0 && (
