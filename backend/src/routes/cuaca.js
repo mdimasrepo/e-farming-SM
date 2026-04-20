@@ -5,8 +5,8 @@ const router = Router();
 // GET /api/cuaca?lat=-7.57&lon=110.82
 router.get('/', async (req, res) => {
   try {
-    const lat = req.query.lat || '-7.57';   // Default: Boyolali, Jawa Tengah
-    const lon = req.query.lon || '110.82';
+    const lat = req.query.lat || '-4.73';   // Default: Lampung Tengah
+    const lon = req.query.lon || '105.28';
 
     // Open-Meteo API — gratis, tanpa API key
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code,precipitation&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=Asia/Jakarta&forecast_days=7`;

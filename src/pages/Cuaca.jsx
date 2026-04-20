@@ -69,7 +69,7 @@ export default function Cuaca() {
           <div className="weather-temp">
             <h2>{weather.current.temperature}°C</h2>
             <p>{weather.current.label}</p>
-            <span className="location">Kec. Ngemplak, Boyolali</span>
+            <span className="location">Lampung Tengah, Lampung</span>
           </div>
         </div>
         
