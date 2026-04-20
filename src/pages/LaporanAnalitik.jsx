@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend
+  LineChart, Line, BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend
 } from 'recharts';
-import { TrendingUp, Download, PieChart, Activity, DollarSign } from 'lucide-react';
+import { TrendingUp, Download, PieChart, Activity, DollarSign, Calendar, Loader } from 'lucide-react';
 import { getLaporanProduktivitas, getLaporanRevenue } from '../utils/api';
 import './LaporanAnalitik.css';
 
@@ -10,39 +10,43 @@ export default function LaporanAnalitik() {
   const [productivityData, setProductivityData] = useState([]);
   const [revenueData, setRevenueData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [activeChart, setActiveChart] = useState('produktivitas');
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  useEffect(() => { fetchData(); }, []);
 
   const fetchData = async () => {
     try {
-      const [prodData, revData] = await Promise.all([
-        getLaporanProduktivitas(),
-        getLaporanRevenue(),
-      ]);
+      const [prodData, revData] = await Promise.all([getLaporanProduktivitas(), getLaporanRevenue()]);
       setProductivityData(prodData.map(d => ({ name: d.month, padi: d.padi, jagung: d.jagung, kedelai: d.kedelai })));
-      setRevenueData(revData.map(d => ({ name: d.quarter, revenue: d.revenue, expense: d.expense })));
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
+      setRevenueData(revData.map(d => ({ name: d.quarter, revenue: d.revenue, expense: d.expense, profit: d.revenue - d.expense })));
+    } catch (err) { console.error(err); }
+    finally { setLoading(false); }
   };
 
+  // Compute stats from data
+  const totalPadi = productivityData.reduce((s, d) => s + (d.padi || 0), 0);
+  const totalJagung = productivityData.reduce((s, d) => s + (d.jagung || 0), 0);
+  const totalKedelai = productivityData.reduce((s, d) => s + (d.kedelai || 0), 0);
+  const totalPanen = totalPadi + totalJagung + totalKedelai;
+  const totalRevenue = revenueData.reduce((s, d) => s + (d.revenue || 0), 0);
+  const totalExpense = revenueData.reduce((s, d) => s + (d.expense || 0), 0);
+  const profit = totalRevenue - totalExpense;
+
   const summaryCards = [
-    { title: 'Total Panen (Ton)', value: '1,240', change: '+12%', icon: PieChart, color: 'var(--emerald-primary)' },
-    { title: 'Pendapatan', value: 'Rp 450M', change: '+8%', icon: DollarSign, color: 'var(--info)' },
-    { title: 'Pengeluaran', value: 'Rp 120M', change: '-4%', icon: Activity, color: 'var(--danger)' },
-    { title: 'Tingkat Keberhasilan', value: '94%', change: '+2%', icon: TrendingUp, color: 'var(--warning)' },
+    { title: 'Total Panen', value: totalPanen > 0 ? `${totalPanen.toLocaleString('id-ID')} ton` : '—', change: '+12%', icon: PieChart, color: 'var(--emerald-primary)' },
+    { title: 'Pendapatan', value: totalRevenue > 0 ? `Rp ${(totalRevenue).toLocaleString('id-ID')}jt` : '—', change: '+8%', icon: DollarSign, color: 'var(--info)' },
+    { title: 'Pengeluaran', value: totalExpense > 0 ? `Rp ${(totalExpense).toLocaleString('id-ID')}jt` : '—', change: '-4%', icon: Activity, color: 'var(--danger)' },
+    { title: 'Laba Bersih', value: profit !== 0 ? `Rp ${profit.toLocaleString('id-ID')}jt` : '—', change: profit >= 0 ? '+' : '', icon: TrendingUp, color: 'var(--warning)' },
   ];
+
+  const tooltipStyle = { backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--glass-border)', color: 'var(--text-primary)', borderRadius: '8px' };
 
   return (
     <div className="laporan-container animate-fade-in">
       <div className="laporan-header">
         <div>
           <h1 className="text-gradient">Laporan & Analitik</h1>
-          <p className="text-muted">Pantau performa dan produktivitas pertanian Anda</p>
+          <p className="text-muted">Pantau performa dan produktivitas pertanian Anda secara real-time.</p>
         </div>
         <button className="btn-primary">
           <Download size={18} />
@@ -73,51 +77,134 @@ export default function LaporanAnalitik() {
         })}
       </div>
 
-      {loading ? (
-        <p style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-secondary)' }}>Memuat data laporan...</p>
-      ) : (
-        <div className="charts-grid">
-          <div className="chart-panel glass-panel">
-            <div className="chart-header">
-              <h2>Tren Produktivitas Bulanan</h2>
-            </div>
-            <div className="chart-container">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={productivityData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--glass-border)" />
-                  <XAxis dataKey="name" stroke="var(--text-secondary)" />
-                  <YAxis stroke="var(--text-secondary)" />
-                  <RechartsTooltip 
-                    contentStyle={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--glass-border)', color: 'var(--text-primary)' }}
-                  />
-                  <Legend />
-                  <Line type="monotone" dataKey="padi" name="Padi" stroke="var(--emerald-primary)" strokeWidth={3} dot={{r: 4}} activeDot={{r: 6}} />
-                  <Line type="monotone" dataKey="jagung" name="Jagung" stroke="var(--warning)" strokeWidth={3} dot={{r: 4}} />
-                  <Line type="monotone" dataKey="kedelai" name="Kedelai" stroke="var(--info)" strokeWidth={3} dot={{r: 4}} />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
+      {/* Chart Tab Selector */}
+      <div className="chart-tabs">
+        <button className={`chart-tab ${activeChart === 'produktivitas' ? 'active' : ''}`} onClick={() => setActiveChart('produktivitas')}>
+          📊 Produktivitas
+        </button>
+        <button className={`chart-tab ${activeChart === 'revenue' ? 'active' : ''}`} onClick={() => setActiveChart('revenue')}>
+          💰 Pendapatan vs Pengeluaran
+        </button>
+        <button className={`chart-tab ${activeChart === 'profit' ? 'active' : ''}`} onClick={() => setActiveChart('profit')}>
+          📈 Tren Laba
+        </button>
+      </div>
 
-          <div className="chart-panel glass-panel">
-            <div className="chart-header">
-              <h2>Pendapatan vs Pengeluaran</h2>
-            </div>
-            <div className="chart-container">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={revenueData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--glass-border)" />
-                  <XAxis dataKey="name" stroke="var(--text-secondary)" />
-                  <YAxis stroke="var(--text-secondary)" />
-                  <RechartsTooltip 
-                    contentStyle={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--glass-border)', color: 'var(--text-primary)' }}
-                  />
-                  <Legend />
-                  <Bar dataKey="revenue" name="Pendapatan (Juta)" fill="var(--emerald-primary)" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="expense" name="Pengeluaran (Juta)" fill="var(--danger)" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
+      {loading ? (
+        <p style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-secondary)' }}><Loader size={20} className="spin" /> Memuat data laporan...</p>
+      ) : (
+        <div className="chart-panel glass-panel">
+          {activeChart === 'produktivitas' && (
+            <>
+              <div className="chart-header">
+                <h2>Tren Produktivitas Bulanan</h2>
+                <div className="chart-legend-custom">
+                  <span><span className="dot" style={{ background: 'var(--emerald-primary)' }}></span> Padi</span>
+                  <span><span className="dot" style={{ background: 'var(--warning)' }}></span> Jagung</span>
+                  <span><span className="dot" style={{ background: 'var(--info)' }}></span> Kedelai</span>
+                </div>
+              </div>
+              <div className="chart-container">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={productivityData}>
+                    <defs>
+                      <linearGradient id="gradPadi" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="var(--emerald-primary)" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="var(--emerald-primary)" stopOpacity={0} />
+                      </linearGradient>
+                      <linearGradient id="gradJagung" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="var(--warning)" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="var(--warning)" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--glass-border)" />
+                    <XAxis dataKey="name" stroke="var(--text-secondary)" />
+                    <YAxis stroke="var(--text-secondary)" />
+                    <RechartsTooltip contentStyle={tooltipStyle} />
+                    <Area type="monotone" dataKey="padi" name="Padi" stroke="var(--emerald-primary)" fill="url(#gradPadi)" strokeWidth={3} />
+                    <Area type="monotone" dataKey="jagung" name="Jagung" stroke="var(--warning)" fill="url(#gradJagung)" strokeWidth={3} />
+                    <Line type="monotone" dataKey="kedelai" name="Kedelai" stroke="var(--info)" strokeWidth={3} dot={{ r: 4 }} />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </>
+          )}
+
+          {activeChart === 'revenue' && (
+            <>
+              <div className="chart-header">
+                <h2>Pendapatan vs Pengeluaran (Juta Rp)</h2>
+              </div>
+              <div className="chart-container">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={revenueData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--glass-border)" />
+                    <XAxis dataKey="name" stroke="var(--text-secondary)" />
+                    <YAxis stroke="var(--text-secondary)" />
+                    <RechartsTooltip contentStyle={tooltipStyle} />
+                    <Legend />
+                    <Bar dataKey="revenue" name="Pendapatan" fill="var(--emerald-primary)" radius={[6, 6, 0, 0]} />
+                    <Bar dataKey="expense" name="Pengeluaran" fill="var(--danger)" radius={[6, 6, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </>
+          )}
+
+          {activeChart === 'profit' && (
+            <>
+              <div className="chart-header">
+                <h2>Tren Laba Bersih per Kuartal (Juta Rp)</h2>
+              </div>
+              <div className="chart-container">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={revenueData}>
+                    <defs>
+                      <linearGradient id="gradProfit" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="var(--emerald-primary)" stopOpacity={0.4} />
+                        <stop offset="95%" stopColor="var(--emerald-primary)" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--glass-border)" />
+                    <XAxis dataKey="name" stroke="var(--text-secondary)" />
+                    <YAxis stroke="var(--text-secondary)" />
+                    <RechartsTooltip contentStyle={tooltipStyle} />
+                    <Area type="monotone" dataKey="profit" name="Laba Bersih" stroke="var(--emerald-primary)" fill="url(#gradProfit)" strokeWidth={3} dot={{ r: 5 }} />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
+      {/* Data breakdown table */}
+      {!loading && productivityData.length > 0 && (
+        <div className="breakdown-section glass-panel">
+          <h2>Rincian Produktivitas per Bulan (Ton)</h2>
+          <div className="table-container">
+            <table className="inventory-table">
+              <thead>
+                <tr>
+                  <th>Bulan</th>
+                  <th>Padi</th>
+                  <th>Jagung</th>
+                  <th>Kedelai</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {productivityData.map((d, i) => (
+                  <tr key={i}>
+                    <td className="item-name">{d.name}</td>
+                    <td>{d.padi?.toLocaleString('id-ID') || 0}</td>
+                    <td>{d.jagung?.toLocaleString('id-ID') || 0}</td>
+                    <td>{d.kedelai?.toLocaleString('id-ID') || 0}</td>
+                    <td className="font-medium">{((d.padi || 0) + (d.jagung || 0) + (d.kedelai || 0)).toLocaleString('id-ID')}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       )}

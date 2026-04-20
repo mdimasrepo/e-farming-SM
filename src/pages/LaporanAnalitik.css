@@ -107,6 +107,67 @@
   min-height: 0;
 }
 
+/* Chart Tabs */
+.chart-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.chart-tab {
+  padding: 8px 18px;
+  border-radius: 100px;
+  border: 1px solid var(--glass-border);
+  background: none;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.chart-tab:hover { border-color: var(--emerald-primary); color: var(--emerald-primary); }
+.chart-tab.active { background: var(--emerald-primary); color: white; border-color: var(--emerald-primary); }
+
+.chart-legend-custom {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.chart-legend-custom .dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Breakdown Table */
+.breakdown-section {
+  padding: 1.5rem;
+}
+
+.breakdown-section h2 {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+.font-medium { font-weight: 600; }
+
 @media (max-width: 1024px) {
   .charts-grid {
     grid-template-columns: 1fr;
