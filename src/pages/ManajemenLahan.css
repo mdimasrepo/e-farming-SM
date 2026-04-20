@@ -100,15 +100,16 @@
   width: 100%;
 }
 
-.land-image {
+.land-image-gradient {
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  transition: transform 0.5s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.land-card:hover .land-image {
-  transform: scale(1.05);
+.land-card:hover .land-image-gradient {
+  filter: brightness(1.1);
 }
 
 .status-badge {

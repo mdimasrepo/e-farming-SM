@@ -117,7 +117,9 @@ export default function ManajemenLahan() {
           {filtered.map((land) => (
             <div key={land.id} className="land-card glass-panel">
               <div className="land-image-wrapper">
-                <img src={land.imageUrl || 'https://images.unsplash.com/photo-1592982537447-6f2aa0c8cb08?w=500'} alt={land.name} className="land-image" />
+                <div className="land-image-gradient" style={{ background: `linear-gradient(135deg, ${['#10b981','#3b82f6','#f59e0b','#8b5cf6','#ef4444'][land.id % 5]}44, ${['#059669','#2563eb','#d97706','#7c3aed','#dc2626'][land.id % 5]}88)` }}>
+                  <MapPin size={40} color="rgba(255,255,255,0.5)" />
+                </div>
                 <div className={`status-badge ${(land.status || 'aktif').toLowerCase()}`}>{land.status || 'Aktif'}</div>
               </div>
               <div className="land-content">

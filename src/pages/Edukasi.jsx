@@ -69,12 +69,18 @@ export default function Edukasi() {
             </div>
             <div className="article-content">
               {selectedArticle.content.split('\n').map((line, i) => {
-                if (line.startsWith('**') && line.endsWith('**')) return <h3 key={i}>{line.replace(/\*\*/g, '')}</h3>;
-                if (line.startsWith('- ')) return <li key={i}>{line.slice(2)}</li>;
-                if (line.match(/^\d+\.\s/)) return <li key={i} className="numbered">{line}</li>;
+                // Clean all asterisks for display
+                const clean = (txt) => txt.replace(/\*+/g, '');
+                
+                if (line.startsWith('**') && line.endsWith('**')) return <h3 key={i}>{clean(line)}</h3>;
+                if (line.startsWith('- ')) return <li key={i}>{clean(line.slice(2))}</li>;
+                if (line.match(/^\d+\.\s/)) return <li key={i} className="numbered">{clean(line)}</li>;
                 if (line.trim() === '') return <br key={i} />;
-                return <p key={i}>{line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').split(/(<strong>.*?<\/strong>)/).map((part, j) => 
-                  part.startsWith('<strong>') ? <strong key={j}>{part.replace(/<\/?strong>/g, '')}</strong> : part
+                
+                // Split on **bold** patterns, render bold parts as <strong>
+                const parts = line.split(/\*\*(.*?)\*\*/g);
+                return <p key={i}>{parts.map((part, j) => 
+                  j % 2 === 1 ? <strong key={j}>{part}</strong> : part.replace(/\*/g, '')
                 )}</p>;
               })}
             </div>
