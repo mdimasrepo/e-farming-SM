@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Sun, Cloud, CloudRain, CloudDrizzle, CloudLightning, CloudSnow, Wind, Droplet, Loader, Search, MapPin } from 'lucide-react';
+import { Sun, Cloud, CloudRain, CloudDrizzle, CloudLightning, CloudSnow, Wind, Droplet, Loader, Search, MapPin, ChevronRight } from 'lucide-react';
 import { getCuaca, searchLokasi } from '../utils/api';
 import './Ekstensi.css';
 
@@ -22,7 +22,6 @@ export default function Cuaca() {
   useEffect(() => {
     fetchCuaca();
 
-    // Close dropdown on outside click
     const handleClick = (e) => {
       if (searchRef.current && !searchRef.current.contains(e.target)) {
         setShowDropdown(false);
@@ -114,13 +113,24 @@ export default function Cuaca() {
 
         {showDropdown && searchResults.length > 0 && (
           <div className="cuaca-dropdown glass-panel">
+            <div className="dropdown-title">Hasil Pencarian ({searchResults.length})</div>
             {searchResults.map((loc) => (
               <div key={loc.id} className="cuaca-dropdown-item" onClick={() => selectLocation(loc)}>
-                <MapPin size={16} />
-                <div>
-                  <strong>{loc.name}</strong>
-                  <span className="text-muted">{loc.displayName}</span>
+                <div className="loc-icon-wrapper">
+                  <MapPin size={18} />
                 </div>
+                <div className="loc-details">
+                  <span className="loc-name">{loc.name}</span>
+                  <div className="loc-breadcrumb">
+                    {[loc.admin4, loc.admin3, loc.admin2, loc.admin1].filter(Boolean).map((part, i, arr) => (
+                      <span key={i}>
+                        {part}
+                        {i < arr.length - 1 && <ChevronRight size={12} className="breadcrumb-sep" />}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <ChevronRight size={18} className="loc-arrow" />
               </div>
             ))}
           </div>
@@ -128,7 +138,11 @@ export default function Cuaca() {
 
         {showDropdown && searchResults.length === 0 && searchQuery.length >= 2 && !searching && (
           <div className="cuaca-dropdown glass-panel">
-            <div className="cuaca-dropdown-empty">Lokasi tidak ditemukan.</div>
+            <div className="cuaca-dropdown-empty">
+              <MapPin size={24} style={{ opacity: 0.3 }} />
+              <p>Lokasi "<strong>{searchQuery}</strong>" tidak ditemukan.</p>
+              <span>Coba kata kunci lain, contoh: "Gunung Sugih" atau "Bandar Lampung"</span>
+            </div>
           </div>
         )}
       </div>
