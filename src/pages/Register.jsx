@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Leaf, Lock, Mail, User, ArrowRight, Loader } from 'lucide-react';
+import { Leaf, Lock, Mail, User, ArrowRight, Loader, Eye, EyeOff, Check, X } from 'lucide-react';
 import { registerAPI, setAuth } from '../utils/api';
 import './Login.css';
 
@@ -9,21 +9,36 @@ export default function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  // Password strength checks
+  const checks = useMemo(() => ({
+    minLength: password.length >= 6,
+    hasUpper: /[A-Z]/.test(password),
+    hasLower: /[a-z]/.test(password),
+    hasNumber: /[0-9]/.test(password),
+    match: password.length > 0 && password === confirmPassword,
+  }), [password, confirmPassword]);
+
+  const strengthScore = Object.values(checks).filter(Boolean).length;
+  const strengthLabel = strengthScore <= 1 ? 'Lemah' : strengthScore <= 3 ? 'Sedang' : strengthScore <= 4 ? 'Kuat' : 'Sangat Kuat';
+  const strengthColor = strengthScore <= 1 ? 'var(--danger)' : strengthScore <= 3 ? 'var(--warning)' : 'var(--emerald-primary)';
 
   const handleRegister = async (e) => {
     e.preventDefault();
     setError('');
 
-    if (password !== confirmPassword) {
-      setError('Password dan konfirmasi password tidak cocok.');
+    if (!checks.minLength) {
+      setError('Password minimal 6 karakter.');
       return;
     }
 
-    if (password.length < 6) {
-      setError('Password minimal 6 karakter.');
+    if (!checks.match) {
+      setError('Password dan konfirmasi password tidak cocok.');
       return;
     }
 
@@ -96,27 +111,56 @@ export default function Register() {
               <div className="input-wrapper">
                 <Lock className="input-icon" size={18} />
                 <input 
-                  type="password" 
+                  type={showPassword ? 'text' : 'password'}
                   placeholder="Minimal 6 karakter"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                 />
+                <button type="button" className="toggle-password" onClick={() => setShowPassword(!showPassword)}>
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
               </div>
+
+              {/* Password Strength Bar */}
+              {password.length > 0 && (
+                <div className="pw-strength">
+                  <div className="pw-strength-bar">
+                    <div className="pw-strength-fill" style={{ width: `${(strengthScore / 5) * 100}%`, backgroundColor: strengthColor }}></div>
+                  </div>
+                  <span className="pw-strength-label" style={{ color: strengthColor }}>{strengthLabel}</span>
+                </div>
+              )}
             </div>
+
             <div className="input-group">
               <label>Konfirmasi Password</label>
               <div className="input-wrapper">
                 <Lock className="input-icon" size={18} />
                 <input 
-                  type="password" 
+                  type={showConfirm ? 'text' : 'password'}
                   placeholder="Ulangi password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
                 />
+                <button type="button" className="toggle-password" onClick={() => setShowConfirm(!showConfirm)}>
+                  {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
               </div>
             </div>
+
+            {/* Password Checklist */}
+            {password.length > 0 && (
+              <div className="pw-checklist">
+                <CheckItem ok={checks.minLength} label="Minimal 6 karakter" />
+                <CheckItem ok={checks.hasUpper} label="Huruf besar (A-Z)" />
+                <CheckItem ok={checks.hasLower} label="Huruf kecil (a-z)" />
+                <CheckItem ok={checks.hasNumber} label="Angka (0-9)" />
+                <CheckItem ok={checks.match} label="Password cocok" />
+              </div>
+            )}
+
             <button type="submit" className="btn-primary login-btn" disabled={loading}>
               {loading ? <><Loader size={18} className="spin" /> Memproses...</> : <>Daftar Sekarang <ArrowRight size={18} /></>}
             </button>
@@ -126,6 +170,15 @@ export default function Register() {
           </form>
         </div>
       </div>
+    </div>
+  );
+}
+
+function CheckItem({ ok, label }) {
+  return (
+    <div className={`pw-check-item ${ok ? 'passed' : ''}`}>
+      {ok ? <Check size={14} /> : <X size={14} />}
+      <span>{label}</span>
     </div>
   );
 }
