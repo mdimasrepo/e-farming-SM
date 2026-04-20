@@ -1,0 +1,248 @@
+.extensi-container {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.extensi-header {
+  margin-bottom: 1rem;
+}
+
+/* Edukasi Styles */
+.edu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.edu-card {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+}
+
+.edu-thumbnail {
+  height: 160px;
+  background: linear-gradient(135deg, var(--emerald-primary), var(--info));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.play-btn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.edu-content {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.edu-tag {
+  align-self: flex-start;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  background: var(--emerald-muted);
+  color: var(--emerald-primary);
+  border-radius: 12px;
+}
+
+.edu-content h3 {
+  font-size: 1.05rem;
+  line-height: 1.4;
+}
+
+/* Konsultasi Styles */
+.pakar-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.pakar-card {
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.pakar-avatar {
+  position: relative;
+}
+
+.avatar-placeholder {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--emerald-primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.status-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  border: 2px solid var(--bg-secondary);
+}
+
+.status-dot.online { background: var(--emerald-primary); }
+.status-dot.busy { background: var(--warning); }
+
+.pakar-info {
+  flex: 1;
+}
+
+.pakar-info h3 { font-size: 1.1rem; }
+.focus { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.25rem; }
+
+.rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.pakar-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Diagnosa Styles */
+.diagnosa-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  max-width: 800px;
+}
+
+.upload-area {
+  padding: 3rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.upload-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  cursor: pointer;
+  width: 100%;
+}
+
+.result-area {
+  padding: 2rem;
+  border-left: 4px solid var(--emerald-primary);
+}
+
+.result-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.result-body p { margin-bottom: 0.5rem; }
+
+.recommendation {
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  background: var(--emerald-muted);
+  border-radius: 8px;
+}
+
+.recommendation h4 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--emerald-primary);
+  margin-bottom: 0.75rem;
+}
+
+.recommendation ul {
+  padding-left: 1.5rem;
+  color: var(--text-primary);
+}
+.recommendation li { margin-bottom: 0.5rem; }
+
+/* Cuaca Styles */
+.weather-today {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2rem;
+  flex-wrap: wrap;
+  gap: 2rem;
+}
+
+.weather-main {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.weather-temp h2 { font-size: 3rem; line-height: 1; }
+.weather-temp p { font-size: 1.2rem; font-weight: 500; }
+.location { color: var(--text-secondary); font-size: 0.9rem; }
+
+.weather-details {
+  display: flex;
+  gap: 2rem;
+}
+
+.w-detail-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.forecast-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 1rem;
+}
+
+.forecast-card {
+  padding: 1.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  text-align: center;
+}
+
+.f-day { font-weight: 600; color: var(--text-secondary); }
+.f-temp { font-weight: 700; font-size: 1.1rem; }
+
+@media (max-width: 768px) {
+  .weather-today { flex-direction: column; align-items: flex-start; }
+  .weather-details { flex-direction: column; gap: 1rem; }
+  .pakar-card { flex-direction: column; text-align: center; }
+  .pakar-actions { flex-direction: row; width: 100%; justify-content: center; }
+}
