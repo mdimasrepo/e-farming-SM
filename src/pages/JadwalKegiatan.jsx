@@ -1,14 +1,37 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Calendar, CheckSquare, Clock, Plus } from 'lucide-react';
+import { getJadwal, updateJadwal } from '../utils/api';
 import './JadwalKegiatan.css';
 
-const MOCK_TASKS = [
-  { id: 1, title: 'Pemupukan NPK Blok Utara', date: '21 Apr 2026', time: '07:00', type: 'Pemupukan', priority: 'High', status: 'Pending' },
-  { id: 2, title: 'Penyiraman Tomat Cherry', date: '21 Apr 2026', time: '16:00', type: 'Perawatan', priority: 'Medium', status: 'Pending' },
-  { id: 3, title: 'Cek Hama Jagung Blok Timur', date: '20 Apr 2026', time: '08:00', type: 'Inspeksi', priority: 'High', status: 'Done' },
-];
-
 export default function JadwalKegiatan() {
+  const [tasks, setTasks] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchJadwal();
+  }, []);
+
+  const fetchJadwal = async () => {
+    try {
+      const data = await getJadwal();
+      setTasks(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const toggleStatus = async (task) => {
+    const newStatus = task.status === 'Done' ? 'Pending' : 'Done';
+    try {
+      await updateJadwal(task.id, { ...task, status: newStatus });
+      fetchJadwal();
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
   return (
     <div className="jadwal-kegiatan animate-fade-in">
       <div className="page-header">
@@ -40,7 +63,7 @@ export default function JadwalKegiatan() {
 
         <div className="task-list">
           <div className="task-list-header">
-            <h3>Daftar Tugas (20 - 21 Apr)</h3>
+            <h3>Daftar Tugas</h3>
             <div className="task-tabs">
               <button className="tab active">Semua</button>
               <button className="tab">Pending</button>
@@ -48,32 +71,36 @@ export default function JadwalKegiatan() {
             </div>
           </div>
 
-          <div className="tasks-container">
-            {MOCK_TASKS.map((task) => (
-              <div key={task.id} className={`task-card glass-panel ${task.status === 'Done' ? 'done' : ''}`}>
-                <div className="task-checkbox">
-                  <CheckSquare size={24} className={task.status === 'Done' ? 'text-emerald' : 'text-muted'} />
-                </div>
-                <div className="task-content">
-                  <h4>{task.title}</h4>
-                  <div className="task-meta">
-                    <span className="task-date">
-                      <Calendar size={14} /> {task.date}
-                    </span>
-                    <span className="task-time">
-                      <Clock size={14} /> {task.time}
+          {loading ? (
+            <p style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-secondary)' }}>Memuat jadwal...</p>
+          ) : (
+            <div className="tasks-container">
+              {tasks.map((task) => (
+                <div key={task.id} className={`task-card glass-panel ${task.status === 'Done' ? 'done' : ''}`}>
+                  <div className="task-checkbox" onClick={() => toggleStatus(task)} style={{ cursor: 'pointer' }}>
+                    <CheckSquare size={24} className={task.status === 'Done' ? 'text-emerald' : 'text-muted'} />
+                  </div>
+                  <div className="task-content">
+                    <h4>{task.title}</h4>
+                    <div className="task-meta">
+                      <span className="task-date">
+                        <Calendar size={14} /> {task.date}
+                      </span>
+                      <span className="task-time">
+                        <Clock size={14} /> {task.time}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="task-tags">
+                    <span className="task-type">{task.type}</span>
+                    <span className={`task-priority priority-${(task.priority || 'medium').toLowerCase()}`}>
+                      {task.priority}
                     </span>
                   </div>
                 </div>
-                <div className="task-tags">
-                  <span className="task-type">{task.type}</span>
-                  <span className={`task-priority priority-${task.priority.toLowerCase()}`}>
-                    {task.priority}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
