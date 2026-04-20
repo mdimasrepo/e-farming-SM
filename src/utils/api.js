@@ -160,3 +160,15 @@ export async function getCuaca(lat, lon) {
 export async function searchLokasi(query) {
   return apiFetch(`/cuaca/search?q=${encodeURIComponent(query)}`);
 }
+
+// ========== DIAGNOSA AI ==========
+export async function getGejala() {
+  return apiFetch('/diagnosa/gejala');
+}
+
+export async function analyzeDiagnosa(plant, symptoms) {
+  return apiFetch('/diagnosa/analyze', {
+    method: 'POST',
+    body: JSON.stringify({ plant, symptoms }),
+  });
+}
