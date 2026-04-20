@@ -156,3 +156,7 @@ export async function getCuaca(lat, lon) {
   const params = lat && lon ? `?lat=${lat}&lon=${lon}` : '';
   return apiFetch(`/cuaca${params}`);
 }
+
+export async function searchLokasi(query) {
+  return apiFetch(`/cuaca/search?q=${encodeURIComponent(query)}`);
+}

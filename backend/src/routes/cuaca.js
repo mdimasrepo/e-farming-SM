@@ -2,23 +2,21 @@ import { Router } from 'express';
 
 const router = Router();
 
-// GET /api/cuaca?lat=-7.57&lon=110.82
+// GET /api/cuaca?lat=-4.73&lon=105.28
 router.get('/', async (req, res) => {
   try {
-    const lat = req.query.lat || '-4.73';   // Default: Lampung Tengah
+    const lat = req.query.lat || '-4.73';
     const lon = req.query.lon || '105.28';
 
-    // Open-Meteo API — gratis, tanpa API key
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code,precipitation&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=Asia/Jakarta&forecast_days=7`;
 
     const response = await fetch(url);
     const data = await response.json();
 
     if (!response.ok) {
-      return res.status(502).json({ error: 'Gagal mengambil data cuaca dari Open-Meteo.' });
+      return res.status(502).json({ error: 'Gagal mengambil data cuaca.' });
     }
 
-    // Format response agar lebih mudah digunakan frontend
     const weatherCodeMap = {
       0: { label: 'Cerah', icon: 'Sun' },
       1: { label: 'Cerah Berawan', icon: 'Sun' },
@@ -41,6 +39,8 @@ router.get('/', async (req, res) => {
 
     const getWeather = (code) => weatherCodeMap[code] || { label: 'Tidak Diketahui', icon: 'Cloud' };
 
+    const dayNames = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+
     const current = {
       temperature: data.current.temperature_2m,
       humidity: data.current.relative_humidity_2m,
@@ -48,8 +48,6 @@ router.get('/', async (req, res) => {
       precipitation: data.current.precipitation,
       ...getWeather(data.current.weather_code),
     };
-
-    const dayNames = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
 
     const forecast = data.daily.time.map((date, i) => {
       const d = new Date(date);
@@ -68,6 +66,45 @@ router.get('/', async (req, res) => {
   } catch (err) {
     console.error('Cuaca error:', err);
     res.status(500).json({ error: 'Gagal mengambil data cuaca.' });
+  }
+});
+
+// GET /api/cuaca/search?q=bandar+lampung
+// Cari desa/kecamatan/kota seluruh Indonesia menggunakan Open-Meteo Geocoding
+router.get('/search', async (req, res) => {
+  try {
+    const query = req.query.q;
+
+    if (!query || query.trim().length < 2) {
+      return res.json([]);
+    }
+
+    const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=10&language=id&country_code=ID`;
+
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (!data.results || data.results.length === 0) {
+      return res.json([]);
+    }
+
+    const results = data.results.map((r) => ({
+      id: r.id,
+      name: r.name,
+      admin1: r.admin1 || '',     // Provinsi
+      admin2: r.admin2 || '',     // Kabupaten/Kota
+      admin3: r.admin3 || '',     // Kecamatan
+      admin4: r.admin4 || '',     // Desa/Kelurahan
+      latitude: r.latitude,
+      longitude: r.longitude,
+      displayName: [r.name, r.admin3, r.admin2, r.admin1].filter(Boolean).join(', '),
+    }));
+
+    res.json(results);
+
+  } catch (err) {
+    console.error('Geocoding error:', err);
+    res.status(500).json({ error: 'Gagal mencari lokasi.' });
   }
 });
 

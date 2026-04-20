@@ -249,6 +249,101 @@
   font-weight: 500; 
 }
 
+/* Cuaca Search */
+.cuaca-search-container {
+  position: relative;
+  max-width: 600px;
+}
+
+.cuaca-search-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+}
+
+.cuaca-search-icon {
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.cuaca-search-bar input {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+.cuaca-search-bar input::placeholder {
+  color: var(--text-secondary);
+}
+
+.cuaca-search-spinner {
+  color: var(--emerald-primary);
+  flex-shrink: 0;
+}
+
+.cuaca-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  z-index: 50;
+  max-height: 320px;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.cuaca-dropdown-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.cuaca-dropdown-item:hover {
+  background: var(--emerald-muted);
+}
+
+.cuaca-dropdown-item svg {
+  color: var(--emerald-primary);
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.cuaca-dropdown-item strong {
+  display: block;
+  font-size: 0.95rem;
+}
+
+.cuaca-dropdown-item .text-muted {
+  font-size: 0.8rem;
+  display: block;
+  margin-top: 2px;
+}
+
+.cuaca-dropdown-empty {
+  padding: 1.5rem;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.weather-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  margin-top: 1rem;
+}
+
 @media (max-width: 768px) {
   .weather-today { flex-direction: column; align-items: flex-start; }
   .weather-details { flex-direction: column; gap: 1rem; }
