@@ -1,13 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MessageSquare, Star, Send, Loader, ArrowLeft, Bot, User } from 'lucide-react';
+import { MessageSquare, Star, Send, Loader, ArrowLeft, Bot, User, Phone } from 'lucide-react';
 import { chatKonsultasi } from '../utils/api';
 import './Ekstensi.css';
 
 const pakarList = [
-  { id: 'hama', name: 'Dr. Ir. Wahyudi', focus: 'Ahli Hama & Penyakit Tanaman', rating: 4.9, emoji: '🐛', color: '#ef4444' },
-  { id: 'tanah', name: 'Siti Aminah, SP.', focus: 'Manajemen Tanah & Pupuk', rating: 4.8, emoji: '🌍', color: '#f59e0b' },
-  { id: 'padi', name: 'Budi Santoso, M.Si', focus: 'Penyuluh Padi & Palawija', rating: 4.7, emoji: '🌾', color: '#10b981' },
-  { id: 'umum', name: 'Asisten Tani.Smart', focus: 'Konsultasi Pertanian Umum', rating: 5.0, emoji: '🤖', color: '#6366f1' },
+  { id: 'hama', name: 'Dr. Ir. Wahyudi', focus: 'Ahli Hama & Penyakit Tanaman', rating: 4.9, emoji: '🐛', color: '#ef4444', wa: '6281234567890' },
+  { id: 'tanah', name: 'Siti Aminah, SP.', focus: 'Manajemen Tanah & Pupuk', rating: 4.8, emoji: '🌍', color: '#f59e0b', wa: '6281234567891' },
+  { id: 'padi', name: 'Budi Santoso, M.Si', focus: 'Penyuluh Padi & Palawija', rating: 4.7, emoji: '🌾', color: '#10b981', wa: '6281234567892' },
+  { id: 'umum', name: 'Asisten Tani.Smart', focus: 'Konsultasi Pertanian Umum', rating: 5.0, emoji: '🤖', color: '#6366f1', wa: null },
 ];
 
 export default function Konsultasi() {
@@ -146,8 +146,13 @@ export default function Konsultasi() {
               </div>
             </div>
             <div className="pakar-actions">
+              {p.wa && (
+                <a href={`https://wa.me/${p.wa}?text=${encodeURIComponent(`Halo ${p.name}, saya ingin konsultasi pertanian melalui Tani.Smart.`)}`} target="_blank" rel="noopener noreferrer" className="btn-wa" onClick={(e) => e.stopPropagation()}>
+                  <Phone size={16} /> WhatsApp
+                </a>
+              )}
               <button className="btn-primary">
-                <MessageSquare size={16} /> Chat
+                <MessageSquare size={16} /> Chat AI
               </button>
             </div>
           </div>
