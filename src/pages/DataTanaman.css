@@ -126,6 +126,18 @@
   color: var(--warning);
 }
 
+.crop-header-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.crop-action-btns {
+  display: flex;
+  gap: 6px;
+}
+
 .crop-progress-container {
   display: flex;
   flex-direction: column;

@@ -4,6 +4,28 @@
   gap: 2rem;
 }
 
+.lahan-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.stat-mini {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 1rem 1.5rem;
+}
+
+.stat-mini strong {
+  font-size: 1.5rem;
+  margin-right: 4px;
+}
+
+.stat-mini span {
+  font-size: 0.85rem;
+}
+
 .page-header {
   display: flex;
   justify-content: space-between;

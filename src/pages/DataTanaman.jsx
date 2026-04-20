@@ -1,25 +1,62 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Watch, CheckCircle2, AlertCircle } from 'lucide-react';
-import { getTanaman } from '../utils/api';
+import { Calendar, Watch, CheckCircle2, AlertCircle, Plus, X, Edit3, Trash2, Leaf } from 'lucide-react';
+import { getTanaman, createTanaman, updateTanaman, deleteTanaman, getLahan } from '../utils/api';
 import './DataTanaman.css';
+
+const PLANT_ICONS = { 'Padi': '🌾', 'Jagung': '🌽', 'Kedelai': '🌱', 'Tomat': '🍅', 'Cabai': '🌶️', 'Semangka': '🍉', 'Melon': '🍈' };
+const HEALTH_OPTIONS = ['Baik', 'Perlu Perhatian', 'Siap Panen'];
 
 export default function DataTanaman() {
   const [crops, setCrops] = useState([]);
+  const [lahans, setLahans] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [editItem, setEditItem] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [form, setForm] = useState({ name: '', icon: '🌾', lahanName: '', plantDate: '', estHarvest: '', progress: 0, health: 'Baik' });
 
-  useEffect(() => {
-    fetchTanaman();
-  }, []);
+  useEffect(() => { fetchData(); }, []);
 
-  const fetchTanaman = async () => {
+  const fetchData = async () => {
     try {
-      const data = await getTanaman();
-      setCrops(data);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
+      const [cropsData, lahanData] = await Promise.all([getTanaman(), getLahan()]);
+      setCrops(cropsData);
+      setLahans(lahanData);
+    } catch (err) { console.error(err); }
+    finally { setLoading(false); }
+  };
+
+  const openAdd = () => {
+    setEditItem(null);
+    setForm({ name: '', icon: '🌾', lahanName: lahans[0]?.name || '', plantDate: new Date().toISOString().split('T')[0], estHarvest: '', progress: 0, health: 'Baik' });
+    setShowModal(true);
+  };
+
+  const openEdit = (crop) => {
+    setEditItem(crop);
+    setForm({ name: crop.name, icon: crop.icon, lahanName: crop.lahanName, plantDate: crop.plantDate, estHarvest: crop.estHarvest, progress: crop.progress, health: crop.health });
+    setShowModal(true);
+  };
+
+  const handleSave = async () => {
+    if (!form.name.trim()) return;
+    setSaving(true);
+    try {
+      if (editItem) {
+        await updateTanaman(editItem.id, { ...form, progress: Number(form.progress) });
+      } else {
+        await createTanaman({ ...form, progress: Number(form.progress) });
+      }
+      setShowModal(false);
+      fetchData();
+    } catch (err) { alert(err.message); }
+    finally { setSaving(false); }
+  };
+
+  const handleDelete = async (id) => {
+    try { await deleteTanaman(id); setDeleteConfirm(null); fetchData(); }
+    catch (err) { alert(err.message); }
   };
 
   const readyCount = crops.filter(c => c.progress >= 90).length;
@@ -32,8 +69,8 @@ export default function DataTanaman() {
           <h2>Data Tanaman</h2>
           <p className="text-muted">Pantau pertumbuhan dan masa panen seluruh tanaman Anda.</p>
         </div>
-        <button className="btn-primary">
-          Tambah Data Tanaman
+        <button className="btn-primary" onClick={openAdd}>
+          <Plus size={18} /> Tambah Data Tanaman
         </button>
       </div>
 
@@ -45,17 +82,23 @@ export default function DataTanaman() {
           </div>
           <div className="summary-stat">
             <span className="stat-value text-info">{readyCount}</span>
-            <span className="stat-label">Siap Panen Bulan Ini</span>
+            <span className="stat-label">Siap Panen</span>
           </div>
           <div className="summary-stat">
             <span className="stat-value text-warning">{warningCount}</span>
-            <span className="stat-label">Perlu Perawatan Ekstra</span>
+            <span className="stat-label">Perlu Perawatan</span>
           </div>
         </div>
       </div>
 
       {loading ? (
         <p style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-secondary)' }}>Memuat data tanaman...</p>
+      ) : crops.length === 0 ? (
+        <div className="empty-state glass-panel">
+          <Leaf size={48} style={{ opacity: 0.3 }} />
+          <h3>Belum ada data tanaman</h3>
+          <p className="text-muted">Klik "Tambah Data Tanaman" untuk memulai.</p>
+        </div>
       ) : (
         <div className="crop-grid">
           {crops.map((crop) => (
@@ -68,9 +111,15 @@ export default function DataTanaman() {
                     <span className="crop-land">{crop.lahanName}</span>
                   </div>
                 </div>
-                <div className="crop-health" data-status={crop.health === 'Baik' ? 'good' : crop.health === 'Siap Panen' ? 'excellent' : 'warning'}>
-                  {crop.health === 'Baik' ? <CheckCircle2 size={16} /> : crop.health === 'Siap Panen' ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
-                  <span>{crop.health}</span>
+                <div className="crop-header-right">
+                  <div className="crop-health" data-status={crop.health === 'Baik' ? 'good' : crop.health === 'Siap Panen' ? 'excellent' : 'warning'}>
+                    {crop.health === 'Perlu Perhatian' ? <AlertCircle size={16} /> : <CheckCircle2 size={16} />}
+                    <span>{crop.health}</span>
+                  </div>
+                  <div className="crop-action-btns">
+                    <button className="btn-icon-sm" title="Edit" onClick={() => openEdit(crop)}><Edit3 size={14} /></button>
+                    <button className="btn-icon-sm danger" title="Hapus" onClick={() => setDeleteConfirm(crop.id)}><Trash2 size={14} /></button>
+                  </div>
                 </div>
               </div>
 
@@ -80,10 +129,7 @@ export default function DataTanaman() {
                   <span>{crop.progress}%</span>
                 </div>
                 <div className="progress-bar-bg">
-                  <div 
-                    className="progress-bar-fill" 
-                    style={{ width: `${crop.progress}%`, background: crop.progress > 80 ? 'var(--emerald-primary)' : crop.progress > 40 ? 'var(--info)' : 'var(--warning)' }}
-                  ></div>
+                  <div className="progress-bar-fill" style={{ width: `${crop.progress}%`, background: crop.progress > 80 ? 'var(--emerald-primary)' : crop.progress > 40 ? 'var(--info)' : 'var(--warning)' }}></div>
                 </div>
               </div>
 
@@ -106,6 +152,80 @@ export default function DataTanaman() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Modal */}
+      {showModal && (
+        <div className="modal-overlay" onClick={() => setShowModal(false)}>
+          <div className="modal-content glass-panel animate-fade-in" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>{editItem ? 'Edit Data Tanaman' : 'Tambah Data Tanaman'}</h3>
+              <button className="btn-icon" onClick={() => setShowModal(false)}><X size={20} /></button>
+            </div>
+            <div className="modal-body">
+              <div className="form-row">
+                <div className="form-group" style={{ flex: 0.3 }}>
+                  <label>Ikon</label>
+                  <select value={form.icon} onChange={e => setForm({ ...form, icon: e.target.value })}>
+                    {Object.entries(PLANT_ICONS).map(([name, icon]) => <option key={name} value={icon}>{icon} {name}</option>)}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>Nama Tanaman</label>
+                  <input type="text" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="Mis: Padi IR64" />
+                </div>
+              </div>
+              <div className="form-group">
+                <label>Lahan</label>
+                <select value={form.lahanName} onChange={e => setForm({ ...form, lahanName: e.target.value })}>
+                  {lahans.length > 0 ? lahans.map(l => <option key={l.id} value={l.name}>{l.name}</option>) : <option value="">Belum ada lahan</option>}
+                </select>
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Tanggal Tanam</label>
+                  <input type="date" value={form.plantDate} onChange={e => setForm({ ...form, plantDate: e.target.value })} />
+                </div>
+                <div className="form-group">
+                  <label>Estimasi Panen</label>
+                  <input type="date" value={form.estHarvest} onChange={e => setForm({ ...form, estHarvest: e.target.value })} />
+                </div>
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Progress (%)</label>
+                  <input type="number" min="0" max="100" value={form.progress} onChange={e => setForm({ ...form, progress: e.target.value })} />
+                </div>
+                <div className="form-group">
+                  <label>Kesehatan</label>
+                  <select value={form.health} onChange={e => setForm({ ...form, health: e.target.value })}>
+                    {HEALTH_OPTIONS.map(h => <option key={h} value={h}>{h}</option>)}
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="btn-secondary" onClick={() => setShowModal(false)}>Batal</button>
+              <button className="btn-primary" onClick={handleSave} disabled={saving || !form.name.trim()}>
+                {saving ? 'Menyimpan...' : editItem ? 'Update' : 'Simpan'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete */}
+      {deleteConfirm && (
+        <div className="modal-overlay" onClick={() => setDeleteConfirm(null)}>
+          <div className="modal-content glass-panel small animate-fade-in" onClick={e => e.stopPropagation()}>
+            <h3>Hapus Tanaman?</h3>
+            <p className="text-muted">Data yang dihapus tidak dapat dikembalikan.</p>
+            <div className="modal-footer">
+              <button className="btn-secondary" onClick={() => setDeleteConfirm(null)}>Batal</button>
+              <button className="btn-danger" onClick={() => handleDelete(deleteConfirm)}>Hapus</button>
+            </div>
+          </div>
         </div>
       )}
     </div>

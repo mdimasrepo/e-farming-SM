@@ -193,9 +193,26 @@
   text-transform: uppercase;
 }
 
-.priority-high { color: var(--danger); }
+.priority-high, .priority-tinggi { color: var(--danger); }
 .priority-medium { color: var(--warning); }
-.priority-low { color: var(--info); }
+.priority-low, .priority-rendah { color: var(--info); }
+
+.cal-stats {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.cal-day.empty {
+  visibility: hidden;
+}
+
+.task-actions-btns {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
 
 @media (max-width: 900px) {
   .schedule-layout {
