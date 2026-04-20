@@ -172,3 +172,10 @@ export async function analyzeDiagnosa(plant, symptoms) {
     body: JSON.stringify({ plant, symptoms }),
   });
 }
+
+export async function analyzeDiagnosaPhoto(imageBase64, plantHint) {
+  return apiFetch('/diagnosa/photo', {
+    method: 'POST',
+    body: JSON.stringify({ image: imageBase64, plantHint }),
+  });
+}
