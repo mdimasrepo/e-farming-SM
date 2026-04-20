@@ -150,3 +150,9 @@ export async function getLaporanProduktivitas() {
 export async function getLaporanRevenue() {
   return apiFetch('/laporan/revenue');
 }
+
+// ========== CUACA ==========
+export async function getCuaca(lat, lon) {
+  const params = lat && lon ? `?lat=${lat}&lon=${lon}` : '';
+  return apiFetch(`/cuaca${params}`);
+}

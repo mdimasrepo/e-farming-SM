@@ -239,6 +239,15 @@
 
 .f-day { font-weight: 600; color: var(--text-secondary); }
 .f-temp { font-weight: 700; font-size: 1.1rem; }
+.f-temp-min { font-size: 0.85rem; color: var(--text-secondary); margin-top: -4px; }
+.f-rain { 
+  display: flex; 
+  align-items: center; 
+  gap: 4px; 
+  font-size: 0.75rem; 
+  color: var(--info); 
+  font-weight: 500; 
+}
 
 @media (max-width: 768px) {
   .weather-today { flex-direction: column; align-items: flex-start; }

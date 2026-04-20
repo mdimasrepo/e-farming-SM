@@ -13,6 +13,7 @@ import tanamanRoutes from './routes/tanaman.js';
 import jadwalRoutes from './routes/jadwal.js';
 import inventoriRoutes from './routes/inventori.js';
 import laporanRoutes from './routes/laporan.js';
+import cuacaRoutes from './routes/cuaca.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -28,6 +29,7 @@ app.use('/api/tanaman', tanamanRoutes);
 app.use('/api/jadwal', jadwalRoutes);
 app.use('/api/inventori', inventoriRoutes);
 app.use('/api/laporan', laporanRoutes);
+app.use('/api/cuaca', cuacaRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
