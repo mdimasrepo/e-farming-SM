@@ -179,3 +179,11 @@ export async function analyzeDiagnosaPhoto(imageBase64, plantHint) {
     body: JSON.stringify({ image: imageBase64, plantHint }),
   });
 }
+
+// ========== KONSULTASI ==========
+export async function chatKonsultasi(message, history, pakarType) {
+  return apiFetch('/konsultasi/chat', {
+    method: 'POST',
+    body: JSON.stringify({ message, history, pakarType }),
+  });
+}
