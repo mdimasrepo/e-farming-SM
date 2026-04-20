@@ -80,7 +80,7 @@ Berikan respons HANYA dalam format JSON (tanpa markdown):
       method: 'POST',
       headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json', 'HTTP-Referer': 'http://localhost:5000', 'X-Title': 'Tani.Smart' },
       body: JSON.stringify({
-        model: 'google/gemma-4-27b-it:free',
+        model: 'google/gemma-4-31b-it:free',
         messages: [
           { role: 'system', content: 'Kamu ahli pertanian Indonesia yang sangat berpengalaman dalam mengidentifikasi penyakit tanaman dari foto. Jawab dalam bahasa Indonesia dan format JSON.' },
           { role: 'user', content: [
