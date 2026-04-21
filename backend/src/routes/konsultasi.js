@@ -1,29 +1,44 @@
 import { Router } from 'express';
+import { db } from '../db/index.js';
+import { konsultasiPakar } from '../db/schema.js';
+import { eq } from 'drizzle-orm';
 
 const router = Router();
 
-// POST /api/konsultasi/chat — Chat dengan AI Pakar Pertanian
+// GET list pakar (Public)
+router.get('/pakar', async (req, res) => {
+  try {
+    const pakar = await db.select().from(konsultasiPakar);
+    res.json(pakar);
+  } catch (err) {
+    res.status(500).json({ error: 'Gagal memuat daftar pakar' });
+  }
+});
+
+// POST /chat — Chat dengan AI Pakar Pertanian
 router.post('/chat', async (req, res) => {
   try {
-    const apiKey = process.env.OPENROUTER_API_KEY;
+    const apiKey = global.CUSTOM_API_KEY || process.env.OPENROUTER_API_KEY;
     if (!apiKey || apiKey.includes('your_')) {
       return res.status(503).json({ error: 'API AI belum dikonfigurasi.' });
     }
 
-    const { message, history, pakarType } = req.body;
+    const { message, history, pakarId } = req.body;
 
     if (!message || message.trim().length === 0) {
       return res.status(400).json({ error: 'Pesan tidak boleh kosong.' });
     }
 
-    const pakarProfiles = {
-      'hama': 'Kamu adalah Dr. Ir. Wahyudi, ahli hama dan penyakit tanaman di Indonesia dengan pengalaman 20 tahun. Kamu sangat berpengetahuan tentang pengendalian hama terpadu (PHT), pestisida organik, dan biologis.',
-      'tanah': 'Kamu adalah Siti Aminah, SP., M.Si, ahli manajemen tanah dan pemupukan. Kamu sangat berpengetahuan tentang kesuburan tanah, pupuk organik & anorganik, pH tanah, dan teknik konservasi lahan.',
-      'padi': 'Kamu adalah Budi Santoso, M.Si, penyuluh pertanian senior spesialis padi dan palawija. Kamu sangat berpengetahuan tentang varietas padi unggul, teknik budidaya SRI, dan penanganan pasca panen.',
-      'umum': 'Kamu adalah ahli pertanian Indonesia yang berpengalaman luas di berbagai bidang pertanian termasuk hortikultura, tanaman pangan, perkebunan, dan peternakan.',
-    };
+    // Try finding the pakar from db
+    let systemPrompt = 'Kamu adalah ahli pertanian Indonesia yang berpengalaman luas.';
+    if (pakarId) {
+      const pakarRecords = await db.select().from(konsultasiPakar).where(eq(konsultasiPakar.id, parseInt(pakarId)));
+      if (pakarRecords.length > 0 && pakarRecords[0].prompt) {
+        systemPrompt = pakarRecords[0].prompt;
+      }
+    }
 
-    const systemPrompt = `${pakarProfiles[pakarType] || pakarProfiles['umum']}
+    const finalPrompt = `${systemPrompt}
 
 Aturan:
 - Jawab selalu dalam bahasa Indonesia yang ramah dan mudah dipahami petani
@@ -33,7 +48,7 @@ Aturan:
 - Jawaban singkat dan padat, maksimal 3 paragraf`;
 
     // Build message history
-    const messages = [{ role: 'system', content: systemPrompt }];
+    const messages = [{ role: 'system', content: finalPrompt }];
     
     if (history && Array.isArray(history)) {
       history.slice(-6).forEach(h => {

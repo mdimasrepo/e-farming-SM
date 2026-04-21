@@ -18,6 +18,10 @@ export default function Login() {
 
     try {
       const data = await loginAPI(email, password);
+      // Blokir admin dari login petani
+      if (data.user.role === 'admin') {
+        throw new Error('Akses ditolak. Harap gunakan halaman khusus admin. (/admin/login)');
+      }
       setAuth(data.token, data.user);
       navigate('/dashboard');
     } catch (err) {
@@ -54,11 +58,11 @@ export default function Login() {
           {error && <div className="login-error">{error}</div>}
           <form onSubmit={handleLogin} className="login-form">
             <div className="input-group">
-              <label>Email</label>
+              <label>Username / Email</label>
               <div className="input-wrapper">
                 <Mail className="input-icon" size={18} />
                 <input 
-                  type="email" 
+                  type="text" 
                   placeholder="dimas@tanismart.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}

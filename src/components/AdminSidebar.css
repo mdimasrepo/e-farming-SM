@@ -1,0 +1,116 @@
+/* Adminto inspired dark navy theme */
+.admin-sidebar {
+  width: 250px;
+  height: 100vh;
+  background-color: #1a2332; /* Adminto Dark Navy */
+  color: #aebacd;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 50;
+  transition: all 0.3s ease;
+}
+
+.admin-sidebar-brand {
+  height: 70px;
+  display: flex;
+  align-items: center;
+  padding: 0 1.5rem;
+  gap: 12px;
+  background-color: #151c28; /* Slightly darker */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.admin-sidebar-brand h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+
+.admin-sidebar-nav {
+  flex: 1;
+  padding: 1.5rem 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-sidebar .nav-divider {
+  padding: 0.75rem 1.5rem 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #6b7a90;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.admin-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 1.5rem;
+  color: #aebacd;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+  border-left: 3px solid transparent;
+}
+
+.admin-nav-item:hover {
+  color: #fff;
+  background-color: #243147;
+}
+
+.admin-nav-item.active {
+  color: #10b981;
+  background-color: rgba(16, 185, 129, 0.1);
+  border-left-color: #10b981;
+}
+
+.admin-sidebar-footer {
+  padding: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  background-color: #151c28;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.admin-btn-logout, .admin-btn-back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+}
+
+.admin-btn-logout {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.admin-btn-logout:hover {
+  background-color: rgba(239, 68, 68, 0.2);
+}
+
+.admin-btn-back {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #aebacd;
+}
+
+.admin-btn-back:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}

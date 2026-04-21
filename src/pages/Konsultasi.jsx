@@ -1,21 +1,33 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MessageSquare, Star, Send, Loader, ArrowLeft, Bot, User, Phone } from 'lucide-react';
-import { chatKonsultasi } from '../utils/api';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { chatKonsultasi, getPakarPublic } from '../utils/api';
 import './Ekstensi.css';
 
-const pakarList = [
-  { id: 'hama', name: 'Dr. Ir. Wahyudi', focus: 'Ahli Hama & Penyakit Tanaman', rating: 4.9, emoji: '🐛', color: '#ef4444', wa: '6281234567890' },
-  { id: 'tanah', name: 'Siti Aminah, SP.', focus: 'Manajemen Tanah & Pupuk', rating: 4.8, emoji: '🌍', color: '#f59e0b', wa: '6281234567891' },
-  { id: 'padi', name: 'Budi Santoso, M.Si', focus: 'Penyuluh Padi & Palawija', rating: 4.7, emoji: '🌾', color: '#10b981', wa: '6281234567892' },
-  { id: 'umum', name: 'Asisten Tani.Smart', focus: 'Konsultasi Pertanian Umum', rating: 5.0, emoji: '🤖', color: '#6366f1', wa: null },
-];
-
 export default function Konsultasi() {
+  const [pakarList, setPakarList] = useState([]);
+  const [loadingPakar, setLoadingPakar] = useState(true);
   const [selectedPakar, setSelectedPakar] = useState(null);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
   const chatEndRef = useRef(null);
+
+  useEffect(() => {
+    fetchPakars();
+  }, []);
+
+  const fetchPakars = async () => {
+    try {
+      const data = await getPakarPublic();
+      setPakarList(data);
+    } catch (err) {
+      console.error('Gagal memuat pakar:', err);
+    } finally {
+      setLoadingPakar(false);
+    }
+  };
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -89,7 +101,13 @@ export default function Konsultasi() {
                 {msg.role === 'user' ? <User size={16} /> : <Bot size={16} />}
               </div>
               <div className="bubble-content">
-                <p>{msg.content}</p>
+                {msg.role === 'assistant' ? (
+                  <div className="markdown-body" style={{ fontSize: '0.95rem', lineHeight: '1.5' }}>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
+                  </div>
+                ) : (
+                  <p>{msg.content}</p>
+                )}
                 <span className="bubble-time">{msg.time}</span>
               </div>
             </div>

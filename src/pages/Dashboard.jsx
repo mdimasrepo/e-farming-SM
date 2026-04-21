@@ -1,125 +1,160 @@
-import React from 'react';
-import { 
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area,
-  BarChart, Bar
-} from 'recharts';
-import { CloudRain, Thermometer, Droplets, Wind, TrendingUp } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Sprout, Map, Calendar, Package, Sun, Droplets, ArrowRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { getLahan, getTanaman, getJadwal, getInventori, getUser } from '../utils/api';
 import './Dashboard.css';
 
-const performanceData = [
-  { name: 'Jan', revenue: 4000, cost: 2400 },
-  { name: 'Feb', revenue: 3000, cost: 1398 },
-  { name: 'Mar', revenue: 2000, cost: 9800 },
-  { name: 'Apr', revenue: 2780, cost: 3908 },
-  { name: 'May', revenue: 1890, cost: 4800 },
-  { name: 'Jun', revenue: 2390, cost: 3800 },
-  { name: 'Jul', revenue: 3490, cost: 4300 },
-];
-
-const cropHealthData = [
-  { name: 'Padi', health: 95 },
-  { name: 'Jagung', health: 80 },
-  { name: 'Kedelai', health: 65 },
-  { name: 'Tomat', health: 90 }
-];
-
 export default function Dashboard() {
+  const navigate = useNavigate();
+  const user = getUser();
+  const [summary, setSummary] = useState({ lahan: 0, tanaman: 0, jadwalHariIni: 0, inventoriKritis: 0 });
+  const [recentJadwal, setRecentJadwal] = useState([]);
+  const [recentTanaman, setRecentTanaman] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const [lahanData, tanamanData, jadwalData, inventoriData] = await Promise.all([
+        getLahan(), getTanaman(), getJadwal(), getInventori()
+      ]);
+
+      const today = new Date().toISOString().split('T')[0];
+      const jadwalHariIni = jadwalData.filter(j => j.date === today);
+      const inventoriKritis = inventoriData.filter(i => i.status === 'Kritis' || i.status === 'Menipis');
+
+      setSummary({
+        lahan: lahanData.length,
+        tanaman: tanamanData.length,
+        jadwalHariIni: jadwalHariIni.length,
+        inventoriKritis: inventoriKritis.length,
+      });
+      setRecentJadwal(jadwalData.slice(0, 4));
+      setRecentTanaman(tanamanData.slice(0, 4));
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const greeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 11) return 'Selamat Pagi';
+    if (hour < 15) return 'Selamat Siang';
+    if (hour < 18) return 'Selamat Sore';
+    return 'Selamat Malam';
+  };
+
+  if (loading) return <div className="dashboard animate-fade-in" style={{ textAlign: 'center', padding: '3rem' }}>Memuat data...</div>;
+
   return (
     <div className="dashboard animate-fade-in">
+      {/* Greeting */}
       <div className="dashboard-header">
         <div>
-          <h2>Ikhtisar Pertanian</h2>
-          <p className="text-muted">Pantau kondisi lahan dan metrik panen Anda hari ini.</p>
+          <h2>{greeting()}, <span className="text-gradient">{user?.name || 'Petani'}</span> 🌾</h2>
+          <p className="text-muted">Berikut ringkasan kondisi pertanian Anda hari ini.</p>
         </div>
-        <button className="btn-primary">
-          <TrendingUp size={18} /> Buat Laporan
-        </button>
       </div>
 
+      {/* Quick Stats */}
       <div className="metrics-grid">
-        <div className="metric-card glass-panel orange-glow">
-          <div className="metric-icon bg-orange">
-            <Thermometer size={24} />
-          </div>
+        <div className="metric-card glass-panel green-glow" onClick={() => navigate('/lahan')} style={{ cursor: 'pointer' }}>
+          <div className="metric-icon bg-green"><Map size={24} /></div>
           <div className="metric-info">
-            <p>Suhu Rata-rata</p>
-            <h3>28.4°C</h3>
-            <span className="trend positive">+1.2% dari minggu lalu</span>
+            <p>Total Lahan</p>
+            <h3>{summary.lahan}</h3>
+            <span className="trend neutral">Blok terdaftar</span>
           </div>
         </div>
-        
-        <div className="metric-card glass-panel blue-glow">
-          <div className="metric-icon bg-blue">
-            <CloudRain size={24} />
-          </div>
+        <div className="metric-card glass-panel blue-glow" onClick={() => navigate('/tanaman')} style={{ cursor: 'pointer' }}>
+          <div className="metric-icon bg-blue"><Sprout size={24} /></div>
           <div className="metric-info">
-            <p>Curah Hujan</p>
-            <h3>120 mm</h3>
-            <span className="trend positive">+5% dari minggu lalu</span>
+            <p>Tanaman Aktif</p>
+            <h3>{summary.tanaman}</h3>
+            <span className="trend neutral">Sedang dikelola</span>
           </div>
         </div>
-
-        <div className="metric-card glass-panel green-glow">
-          <div className="metric-icon bg-green">
-            <Droplets size={24} />
-          </div>
+        <div className="metric-card glass-panel orange-glow" onClick={() => navigate('/jadwal')} style={{ cursor: 'pointer' }}>
+          <div className="metric-icon bg-orange"><Calendar size={24} /></div>
           <div className="metric-info">
-            <p>Kelembapan Tanah</p>
-            <h3>64%</h3>
-            <span className="trend neutral">Optimal</span>
+            <p>Jadwal Hari Ini</p>
+            <h3>{summary.jadwalHariIni}</h3>
+            <span className="trend neutral">Kegiatan</span>
           </div>
         </div>
-
-        <div className="metric-card glass-panel purple-glow">
-          <div className="metric-icon bg-purple">
-            <Wind size={24} />
-          </div>
+        <div className="metric-card glass-panel purple-glow" onClick={() => navigate('/inventori')} style={{ cursor: 'pointer' }}>
+          <div className="metric-icon bg-purple"><Package size={24} /></div>
           <div className="metric-info">
-            <p>Kecepatan Angin</p>
-            <h3>12 km/h</h3>
-            <span className="trend negative">Lebih kencang</span>
+            <p>Stok Kritis</p>
+            <h3>{summary.inventoriKritis}</h3>
+            <span className={`trend ${summary.inventoriKritis > 0 ? 'negative' : 'positive'}`}>
+              {summary.inventoriKritis > 0 ? 'Perlu restock!' : 'Aman semua'}
+            </span>
           </div>
         </div>
       </div>
 
+      {/* Quick Access Cards */}
       <div className="charts-grid">
+        {/* Tanaman Terbaru */}
         <div className="chart-card glass-panel">
-          <div className="chart-header">
-            <h3>Proyeksi Panen (Ton)</h3>
+          <div className="chart-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h3>🌱 Tanaman Saya</h3>
+            <button onClick={() => navigate('/tanaman')} style={{ background: 'none', border: 'none', color: 'var(--emerald-primary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.85rem', fontWeight: 600 }}>
+              Lihat Semua <ArrowRight size={14} />
+            </button>
           </div>
-          <div className="chart-wrapper">
-            <ResponsiveContainer width="100%" height={300}>
-              <AreaChart data={performanceData}>
-                <defs>
-                  <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="var(--emerald-primary)" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="var(--emerald-primary)" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--glass-border)" vertical={false} />
-                <XAxis dataKey="name" stroke="var(--text-secondary)" />
-                <YAxis stroke="var(--text-secondary)" />
-                <Tooltip contentStyle={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--glass-border)', borderRadius: '8px' }} />
-                <Area type="monotone" dataKey="revenue" stroke="var(--emerald-primary)" strokeWidth={3} fillOpacity={1} fill="url(#colorRevenue)" />
-              </AreaChart>
-            </ResponsiveContainer>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '0 0.5rem' }}>
+            {recentTanaman.length > 0 ? recentTanaman.map(t => (
+              <div key={t.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px', borderRadius: '10px', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--glass-border)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <span style={{ fontSize: '1.5rem' }}>{t.icon}</span>
+                  <div>
+                    <strong>{t.name}</strong>
+                    <div className="text-muted" style={{ fontSize: '0.8rem' }}>{t.lahanName}</div>
+                  </div>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: '0.85rem', fontWeight: 600 }}>{t.progress}%</div>
+                  <div style={{ width: '60px', height: '4px', background: 'var(--glass-border)', borderRadius: '4px', overflow: 'hidden' }}>
+                    <div style={{ width: `${t.progress}%`, height: '100%', background: t.progress >= 90 ? 'var(--emerald-primary)' : 'var(--info)', borderRadius: '4px', transition: 'width 0.5s' }} />
+                  </div>
+                </div>
+              </div>
+            )) : <p className="text-muted" style={{ textAlign: 'center', padding: '2rem' }}>Belum ada tanaman. Mulai tanam sekarang!</p>}
           </div>
         </div>
 
+        {/* Jadwal Terbaru */}
         <div className="chart-card glass-panel">
-          <div className="chart-header">
-            <h3>Kesehatan Tanaman (%)</h3>
+          <div className="chart-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h3>📅 Jadwal Terdekat</h3>
+            <button onClick={() => navigate('/jadwal')} style={{ background: 'none', border: 'none', color: 'var(--emerald-primary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.85rem', fontWeight: 600 }}>
+              Lihat Semua <ArrowRight size={14} />
+            </button>
           </div>
-          <div className="chart-wrapper">
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={cropHealthData} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--glass-border)" horizontal={false} />
-                <XAxis type="number" stroke="var(--text-secondary)" />
-                <YAxis dataKey="name" type="category" stroke="var(--text-secondary)" />
-                <Tooltip contentStyle={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--glass-border)', borderRadius: '8px' }} />
-                <Bar dataKey="health" fill="var(--info)" radius={[0, 4, 4, 0]} barSize={24} />
-              </BarChart>
-            </ResponsiveContainer>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '0 0.5rem' }}>
+            {recentJadwal.length > 0 ? recentJadwal.map(j => (
+              <div key={j.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px', borderRadius: '10px', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--glass-border)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: j.status === 'Done' ? 'rgba(16,185,129,0.1)' : 'rgba(245,158,11,0.1)', color: j.status === 'Done' ? 'var(--emerald-primary)' : 'var(--warning)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Calendar size={18} />
+                  </div>
+                  <div>
+                    <strong style={{ fontSize: '0.9rem' }}>{j.title}</strong>
+                    <div className="text-muted" style={{ fontSize: '0.8rem' }}>{j.date} • {j.type}</div>
+                  </div>
+                </div>
+                <span style={{ fontSize: '0.75rem', fontWeight: 600, padding: '4px 8px', borderRadius: '50px', background: j.status === 'Done' ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)', color: j.status === 'Done' ? 'var(--emerald-primary)' : 'var(--warning)' }}>
+                  {j.status}
+                </span>
+              </div>
+            )) : <p className="text-muted" style={{ textAlign: 'center', padding: '2rem' }}>Belum ada jadwal.</p>}
           </div>
         </div>
       </div>

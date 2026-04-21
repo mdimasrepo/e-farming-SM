@@ -40,22 +40,48 @@ async function seed() {
   console.log('\n🌱 Memulai seeding data...\n');
 
   try {
-    // Cek apakah user sudah ada (hindari duplikasi)
+    // === ADMIN USER ===
+    const adminExists = await db.select().from(schema.users).where(eq(schema.users.email, 'admin'));
+    let hashedPasswordAdmin = await bcrypt.hash('admin123', 10);
+    if (adminExists.length === 0) {
+      await db.insert(schema.users).values({
+        name: 'Administrator',
+        email: 'admin',
+        password: hashedPasswordAdmin,
+        role: 'admin',
+      });
+      console.log(`✅ Admin: admin (password: admin123)`);
+    }
+
+    let hashedPassword = await bcrypt.hash('password123', 10);
+
+    // === KONSULTASI PAKAR ===
+    const existingPakar = await db.select().from(schema.konsultasiPakar);
+    if (existingPakar.length === 0) {
+      const pakarData = [
+        { name: 'Dr. Ir. Wahyudi', focus: 'Ahli Hama & Penyakit Tanaman', emoji: '🐛', color: '#ef4444', wa: '6281234567890', prompt: 'Kamu adalah Dr. Ir. Wahyudi, ahli hama dan penyakit tanaman di Indonesia dengan pengalaman 20 tahun. Kamu sangat berpengetahuan tentang pengendalian hama terpadu (PHT), pestisida organik, dan biologis.', status: 'Online' },
+        { name: 'Siti Aminah, SP., M.Si', focus: 'Ahli Manajemen Tanah', emoji: '🌱', color: '#10b981', wa: '6281234567891', prompt: 'Kamu adalah Siti Aminah, SP., M.Si, ahli manajemen tanah dan pemupukan. Kamu sangat berpengetahuan tentang kesuburan tanah, pupuk organik & anorganik, pH tanah, dan teknik konservasi lahan.', status: 'Online' },
+        { name: 'Budi Santoso, M.Si', focus: 'Spesialis Padi & Palawija', emoji: '🌾', color: '#f59e0b', wa: '6281234567892', prompt: 'Kamu adalah Budi Santoso, M.Si, penyuluh pertanian senior spesialis padi dan palawija. Kamu sangat berpengetahuan tentang varietas padi unggul, teknik budidaya SRI, dan penanganan pasca panen.', status: 'Offline' },
+        { name: 'AI Asisten Umum', focus: 'Pertanian Umum & Panduan', emoji: '🤖', color: '#3b82f6', wa: '6281234567893', prompt: 'Kamu adalah ahli pertanian Indonesia yang berpengalaman luas di berbagai bidang pertanian termasuk hortikultura, tanaman pangan, perkebunan, dan peternakan.', status: 'Online' },
+      ];
+      await db.insert(schema.konsultasiPakar).values(pakarData);
+      console.log(`✅ Pakar Konsultasi: ${pakarData.length} orang`);
+    }
+
+    // Cek apakah user (petani) sudah ada (hindari duplikasi)
     const existingUser = await db.select().from(schema.users).where(eq(schema.users.email, 'dimas@tanismart.com'));
     
     if (existingUser.length > 0) {
-      console.log('ℹ️  Data seed sudah ada. Tidak ada perubahan.\n');
+      console.log('ℹ️  Data seed petani sudah ada. Tidak ada perubahan.\n');
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('  Login Credentials:');
-      console.log('  Email   : dimas@tanismart.com');
-      console.log('  Password: password123');
+      console.log('  Login Petani : dimas@tanismart.com (pw: password123)');
+      console.log('  Login Admin  : admin (pw: admin123)');
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
-      await pool.end();
-      return;
+      // Fix: don't end pool twice
+      return; 
     }
 
     // === USERS ===
-    const hashedPassword = await bcrypt.hash('password123', 10);
     const [user] = await db.insert(schema.users).values({
       name: 'Dimas Alzani',
       email: 'dimas@tanismart.com',
@@ -125,11 +151,12 @@ async function seed() {
     await db.insert(schema.laporanRevenue).values(revenueData);
     console.log(`✅ Laporan Revenue: ${revenueData.length} kuartal`);
 
+
+
     console.log('\n🎉 Seeding selesai!\n');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('  Login Credentials:');
-    console.log('  Email   : dimas@tanismart.com');
-    console.log('  Password: password123');
+    console.log('  Login Petani : dimas@tanismart.com (pw: password123)');
+    console.log('  Login Admin  : admin (pw: admin123)');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
   } catch (err) {

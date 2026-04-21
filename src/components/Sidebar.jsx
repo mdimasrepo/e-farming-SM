@@ -57,12 +57,6 @@ export default function Sidebar() {
           );
         })}
       </nav>
-      <div className="sidebar-footer">
-        <div className="upgrade-card glass-panel">
-          <p>Tingkatkan ke Pro untuk fitur AI lanjutan.</p>
-          <button className="btn-primary">Upgrade Pro</button>
-        </div>
-      </div>
     </aside>
   );
 }

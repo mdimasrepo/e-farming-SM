@@ -181,9 +181,50 @@ export async function analyzeDiagnosaPhoto(imageBase64, plantHint) {
 }
 
 // ========== KONSULTASI ==========
-export async function chatKonsultasi(message, history, pakarType) {
+export async function chatKonsultasi(message, history, pakarId) {
   return apiFetch('/konsultasi/chat', {
     method: 'POST',
-    body: JSON.stringify({ message, history, pakarType }),
+    body: JSON.stringify({ message, history, pakarId }),
   });
 }
+
+export async function getPakarPublic() {
+  return apiFetch('/konsultasi/pakar');
+}
+
+// ========== ADMIN ==========
+export async function getAdminStats() { return apiFetch('/admin/stats'); }
+export async function getAdminUsers() { return apiFetch('/admin/users'); }
+export async function updateAdminUser(id, data) { return apiFetch(`/admin/users/${id}`, { method: 'PUT', body: JSON.stringify(data) }); }
+export async function deleteAdminUser(id) { return apiFetch(`/admin/users/${id}`, { method: 'DELETE' }); }
+export async function getAdminLahan() { return apiFetch('/admin/lahan'); }
+export async function getAdminTanaman() { return apiFetch('/admin/tanaman'); }
+export async function getAdminInventori() { return apiFetch('/admin/inventori'); }
+export async function getAdminJadwal() { return apiFetch('/admin/jadwal'); }
+export async function getAdminPakar() { return apiFetch('/admin/konsultasi'); }
+export async function createAdminPakar(data) { return apiFetch('/admin/konsultasi', { method: 'POST', body: JSON.stringify(data) }); }
+export async function updateAdminPakar(id, data) { return apiFetch(`/admin/konsultasi/${id}`, { method: 'PUT', body: JSON.stringify(data) }); }
+export async function deleteAdminPakar(id) { return apiFetch(`/admin/konsultasi/${id}`, { method: 'DELETE' }); }
+export async function getAdminSettings() { return apiFetch('/admin/settings'); }
+export async function updateAdminSettings(data) { return apiFetch('/admin/settings', { method: 'PUT', body: JSON.stringify(data) }); }
+export async function testAdminApiKey(apiKey) { return apiFetch('/admin/test-apikey', { method: 'POST', body: JSON.stringify({ apiKey }) }); }
+export async function checkMaintenanceStatus() { return apiFetch('/maintenance/status'); }
+
+// ========== BUG REPORTS (User) ==========
+export async function getMyBugs() { return apiFetch('/bugs'); }
+export async function createBug(data) { return apiFetch('/bugs', { method: 'POST', body: JSON.stringify(data) }); }
+export async function getBugCount() { return apiFetch('/bugs/count'); }
+
+// ========== BUG REPORTS (Admin) ==========
+export async function getAdminBugs() { return apiFetch('/admin/bugs'); }
+export async function updateAdminBug(id, data) { return apiFetch(`/admin/bugs/${id}`, { method: 'PUT', body: JSON.stringify(data) }); }
+export async function deleteAdminBug(id) { return apiFetch(`/admin/bugs/${id}`, { method: 'DELETE' }); }
+
+const api = {
+  get: (url) => apiFetch(url),
+  post: (url, data) => apiFetch(url, { method: 'POST', body: JSON.stringify(data) }),
+  put: (url, data) => apiFetch(url, { method: 'PUT', body: JSON.stringify(data) }),
+  delete: (url) => apiFetch(url, { method: 'DELETE' }),
+};
+
+export default api;

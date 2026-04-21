@@ -9,6 +9,7 @@ export const users = pgTable('users', {
   email: varchar('email', { length: 150 }).unique().notNull(),
   password: varchar('password', { length: 255 }).notNull(),
   role: varchar('role', { length: 20 }).default('petani'),
+  photoUrl: text('photo_url'),
   createdAt: timestamp('created_at').defaultNow(),
 });
 
@@ -94,4 +95,34 @@ export const laporanRevenue = pgTable('laporan_revenue', {
   quarter: varchar('quarter', { length: 5 }),
   revenue: bigint('revenue', { mode: 'number' }).default(0),
   expense: bigint('expense', { mode: 'number' }).default(0),
+});
+
+// ==============================
+// KONSULTASI PAKAR
+// ==============================
+export const konsultasiPakar = pgTable('konsultasi_pakar', {
+  id: serial('id').primaryKey(),
+  name: varchar('name', { length: 100 }).notNull(),
+  focus: varchar('focus', { length: 200 }),
+  emoji: varchar('emoji', { length: 10 }),
+  color: varchar('color', { length: 20 }),
+  wa: varchar('wa', { length: 20 }),
+  prompt: text('prompt'),
+  status: varchar('status', { length: 20 }).default('Online'),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
+// ==============================
+// BUG REPORTS
+// ==============================
+export const bugReports = pgTable('bug_reports', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  title: varchar('title', { length: 200 }).notNull(),
+  description: text('description'),
+  category: varchar('category', { length: 50 }).default('Bug'),
+  priority: varchar('priority', { length: 20 }).default('Medium'),
+  status: varchar('status', { length: 20 }).default('Open'),
+  adminReply: text('admin_reply'),
+  createdAt: timestamp('created_at').defaultNow(),
 });

@@ -31,7 +31,7 @@ function ruleBasedDiagnosis(plant, symptoms) {
 
 // OpenRouter AI — text analysis
 async function aiTextDiagnosis(plant, symptoms) {
-  const apiKey = process.env.OPENROUTER_API_KEY;
+  const apiKey = global.CUSTOM_API_KEY;
   if (!apiKey || apiKey.includes('your_')) return null;
 
   const prompt = `Kamu adalah sistem pakar diagnosa penyakit tanaman pertanian di Indonesia. Analisis gejala berikut.
@@ -68,7 +68,7 @@ const VISION_MODELS = [
 ];
 
 async function aiPhotoDiagnosis(imageBase64, plantHint) {
-  const apiKey = process.env.OPENROUTER_API_KEY;
+  const apiKey = global.CUSTOM_API_KEY;
   if (!apiKey || apiKey.includes('your_')) return null;
 
   const prompt = `Kamu adalah sistem pakar diagnosa penyakit tanaman pertanian di Indonesia. Analisis foto tanaman ini secara detail.

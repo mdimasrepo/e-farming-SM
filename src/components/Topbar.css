@@ -76,14 +76,27 @@
   border: 2px solid var(--bg-primary);
 }
 
-.user-profile {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.user-profile-dropdown {
+  position: relative;
   margin-left: 1rem;
   padding-left: 1.5rem;
   border-left: 1px solid var(--glass-border);
+}
+
+.user-profile-trigger {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: transparent;
+  border: none;
   cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 12px;
+  transition: background 0.2s;
+}
+
+.user-profile-trigger:hover {
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .avatar {
@@ -95,11 +108,43 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.avatar-lg {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--emerald-muted);
+  color: var(--emerald-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+
+img.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid var(--emerald-primary);
+}
+
+img.avatar-lg {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 2px solid var(--emerald-primary);
+  flex-shrink: 0;
 }
 
 .user-info {
   display: flex;
   flex-direction: column;
+  text-align: left;
 }
 
 .user-name {
@@ -113,11 +158,85 @@
   color: var(--text-secondary);
 }
 
+.dropdown-chevron {
+  color: var(--text-secondary);
+  transition: transform 0.2s;
+}
+
+.dropdown-chevron.open {
+  transform: rotate(180deg);
+}
+
+/* Dropdown Menu */
+.profile-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 260px;
+  border-radius: 12px;
+  padding: 0.5rem 0;
+  z-index: 100;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.dropdown-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 1rem 1.25rem;
+}
+
+.dropdown-header strong {
+  display: block;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+.dropdown-header .text-muted {
+  font-size: 0.8rem;
+}
+
+.dropdown-divider {
+  height: 1px;
+  background: var(--glass-border);
+  margin: 0.25rem 0;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 1.25rem;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.15s;
+  text-align: left;
+}
+
+.dropdown-item:hover {
+  background: rgba(16, 185, 129, 0.08);
+}
+
+.dropdown-item.logout {
+  color: var(--danger);
+}
+
+.dropdown-item.logout:hover {
+  background: rgba(239, 68, 68, 0.08);
+}
+
 @media (max-width: 768px) {
   .search-bar {
     display: none;
   }
   .user-info {
+    display: none;
+  }
+  .dropdown-chevron {
     display: none;
   }
 }

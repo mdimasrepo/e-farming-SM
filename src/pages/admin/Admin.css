@@ -1,0 +1,201 @@
+/* SHARED ADMIN STYLES (Adminto inspired) */
+
+.app-layout.admin-mode {
+  background-color: var(--bg-primary); /* Uses main theme bg */
+}
+
+/* Make sure main content leaves room for admin sidebar */
+.admin-mode .main-content {
+  margin-left: 250px; 
+  padding: 0;
+}
+
+.admin-mode .content-wrapper {
+  padding: 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.admin-topbar {
+  border-radius: 0;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  margin: 0;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+.maintenance-banner {
+  background-color: rgba(245, 158, 11, 0.15);
+  color: var(--warning);
+  padding: 12px 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.9rem;
+  border-bottom: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+/* Admin Panels / Cards */
+.admin-card {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-card-header {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--glass-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.admin-card-header h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.admin-card-body {
+  padding: 1.5rem;
+  flex: 1;
+}
+
+/* Stat Widgets */
+.admin-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.stat-widget {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  transition: transform 0.2s ease;
+}
+
+.stat-widget:hover {
+  transform: translateY(-4px);
+}
+
+.stat-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-icon.primary { background: rgba(16, 185, 129, 0.1); color: var(--emerald-primary); }
+.stat-icon.info { background: rgba(59, 130, 246, 0.1); color: var(--info); }
+.stat-icon.warning { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
+.stat-icon.danger { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+
+.stat-details {
+  flex: 1;
+}
+
+.stat-details h4 {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.25rem;
+}
+
+.stat-details h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--text-primary);
+}
+
+/* Tables Adminto Style */
+.admin-table-container {
+  overflow-x: auto;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-table th {
+  text-align: left;
+  padding: 12px 1rem;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--glass-border);
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+[data-theme="dark"] .admin-table th {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+.admin-table td {
+  padding: 14px 1rem;
+  font-size: 0.9rem;
+  border-bottom: 1px solid var(--glass-border);
+  vertical-align: middle;
+}
+
+.admin-table tr:last-child td {
+  border-bottom: none;
+}
+
+.admin-table tr:hover td {
+  background-color: rgba(16, 185, 129, 0.05); /* very light emerald hover */
+}
+
+/* Badges */
+.admin-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 100px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.admin-badge.success { background: rgba(16, 185, 129, 0.15); color: var(--emerald-primary); }
+.admin-badge.info { background: rgba(59, 130, 246, 0.15); color: var(--info); }
+.admin-badge.warning { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+.admin-badge.danger { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+.admin-badge.neutral { background: rgba(156, 163, 175, 0.15); color: var(--text-secondary); }
+
+/* Table action buttons */
+.admin-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.admin-btn-action {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  color: var(--text-secondary);
+  transition: all 0.2s;
+}
+
+.admin-btn-action:hover { background: rgba(255, 255, 255, 0.1); }
+.admin-btn-action.edit:hover { color: var(--info); }
+.admin-btn-action.delete:hover { color: var(--danger); }
