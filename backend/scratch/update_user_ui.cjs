@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+const fs = require('fs');
+const content = `import React, { useState, useEffect } from 'react';
 import { PackageSearch, Store, Home, Search, Filter, ShoppingCart, Banknote, Plus, Edit3, Trash2, X, AlertTriangle, FileClock } from 'lucide-react';
 import { getInventori, getKatalog, jualBarang, beliBarang, createInventori, updateInventori, deleteInventori, getRiwayatTransaksi } from '../utils/api';
 import './Inventori.css';
@@ -25,30 +26,7 @@ export default function Inventori() {
   const [saving, setSaving] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
 
-  
-  useEffect(() => {
-    fetchData();
-    const interval = setInterval(() => {
-      fetchDataSilent();
-    }, 5000); // Auto refresh tiap 5 detik
-    return () => clearInterval(interval);
-  }, [activeTab]);
-
-  const fetchDataSilent = async () => {
-    try {
-      if (activeTab === 'katalog') {
-        const data = await getKatalog();
-        setKatalog(data);
-      } else if (activeTab === 'local') {
-        const data = await getInventori();
-        setLocalInv(data);
-      } else if (activeTab === 'riwayat') {
-        const data = await getRiwayatTransaksi();
-        setRiwayat(data);
-      }
-    } catch (err) {} 
-  };
-
+  useEffect(() => { fetchData(); }, [activeTab]);
 
   const fetchData = async () => {
     setLoading(true);
@@ -128,21 +106,21 @@ export default function Inventori() {
 
       <div className="tabs" style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
         <button 
-          className={`btn-tab ${activeTab === 'katalog' ? 'active' : ''}`} 
+          className={\`btn-tab \${activeTab === 'katalog' ? 'active' : ''}\`} 
           onClick={() => setActiveTab('katalog')}
           style={{ flex: 1, padding: '1rem', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: activeTab === 'katalog' ? 'var(--primary)' : 'rgba(255,255,255,0.05)', color: activeTab === 'katalog' ? 'white' : 'var(--text-secondary)' }}
         >
           <Store size={20} /> Toko Koperasi (Pusat)
         </button>
         <button 
-          className={`btn-tab ${activeTab === 'local' ? 'active' : ''}`} 
+          className={\`btn-tab \${activeTab === 'local' ? 'active' : ''}\`} 
           onClick={() => setActiveTab('local')}
           style={{ flex: 1, padding: '1rem', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: activeTab === 'local' ? 'var(--emerald-primary)' : 'rgba(255,255,255,0.05)', color: activeTab === 'local' ? 'white' : 'var(--text-secondary)' }}
         >
           <Home size={20} /> Gudang Milik Saya
         </button>
         <button 
-          className={`btn-tab ${activeTab === 'riwayat' ? 'active' : ''}`} 
+          className={\`btn-tab \${activeTab === 'riwayat' ? 'active' : ''}\`} 
           onClick={() => setActiveTab('riwayat')}
           style={{ flex: 1, padding: '1rem', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: activeTab === 'riwayat' ? 'var(--warning)' : 'rgba(255,255,255,0.05)', color: activeTab === 'riwayat' ? 'white' : 'var(--text-secondary)' }}
         >
@@ -158,7 +136,7 @@ export default function Inventori() {
         </div>
         <div className="inv-filters">
           {['Semua', ...CATEGORIES].map(cat => (
-            <button key={cat} className={`cat-btn ${filterCat === cat ? 'active' : ''}`} onClick={() => setFilterCat(cat)}>{cat}</button>
+            <button key={cat} className={\`cat-btn \${filterCat === cat ? 'active' : ''}\`} onClick={() => setFilterCat(cat)}>{cat}</button>
           ))}
         </div>
       </div>
@@ -190,7 +168,7 @@ export default function Inventori() {
                   <tr key={r.id}>
                     <td className="text-muted">{new Date(r.date).toLocaleDateString()}</td>
                     <td>
-                      <span className={`cat-badge ${r.type === 'Jual' ? 'hasil-panen' : 'pupuk'}`} style={{ padding: '4px 8px' }}>{r.type}</span>
+                      <span className={\`cat-badge \${r.type === 'Jual' ? 'hasil-panen' : 'pupuk'}\`} style={{ padding: '4px 8px' }}>{r.type}</span>
                     </td>
                     <td className="font-medium">{r.itemName}</td>
                     <td>{r.quantity}</td>
@@ -232,7 +210,7 @@ export default function Inventori() {
               {filtered.map((inv) => (
                 <tr key={inv.id}>
                   <td className="item-name font-medium">{inv.item}</td>
-                  <td><span className={`cat-badge ${(inv.category || '').toLowerCase().replace(' ', '-')}`}>{inv.category}</span></td>
+                  <td><span className={\`cat-badge \${(inv.category || '').toLowerCase().replace(' ', '-')}\`}>{inv.category}</span></td>
                   <td className="stock-value">
                     <span className={(inv.stock <= 0) ? 'text-danger font-bold' : ''}>{inv.stock} {inv.unit}</span>
                   </td>
@@ -322,7 +300,7 @@ export default function Inventori() {
             <div className="modal-footer" style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem' }}>
               <button className="btn-secondary" onClick={() => setTradeModal(null)}>Batal</button>
               <button className="btn-primary" onClick={handleTrade} disabled={saving || !tradeForm.quantity || !tradeForm.pricePerUnit} style={{ background: tradeModal.type === 'Jual' ? 'var(--emerald-primary)' : 'var(--primary)' }}>
-                {saving ? 'Memproses...' : `Konfirmasi ${tradeModal.type}`}
+                {saving ? 'Memproses...' : \`Konfirmasi \${tradeModal.type}\`}
               </button>
             </div>
           </div>
@@ -400,3 +378,5 @@ export default function Inventori() {
     </div>
   );
 }
+`;
+fs.writeFileSync('d:/aplikasi skripsi/dimas/src/pages/Inventori.jsx', content);

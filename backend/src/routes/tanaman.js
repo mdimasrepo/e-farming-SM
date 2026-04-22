@@ -85,4 +85,52 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+// POST /api/tanaman/:id/panen
+router.post('/:id/panen', async (req, res) => {
+  try {
+    const { quantity } = req.body;
+
+    // 1. Get the crop
+    const [crop] = await db.select().from(tanaman)
+      .where(and(eq(tanaman.id, parseInt(req.params.id)), eq(tanaman.userId, req.user.id)));
+
+    if (!crop) {
+      return res.status(404).json({ error: 'Tanaman tidak ditemukan.' });
+    }
+
+    // 2. Add to Inventory as 'Hasil Panen'
+    // check if it already exists to add stock, otherwise create new
+    const { inventori } = await import('../db/schema.js');
+    const [existingItem] = await db.select().from(inventori)
+      .where(and(
+        eq(inventori.userId, req.user.id),
+        eq(inventori.item, crop.name + ' (Panen)'),
+        eq(inventori.category, 'Hasil Panen')
+      ));
+
+    if (existingItem) {
+      await db.update(inventori)
+        .set({ stock: existingItem.stock + parseInt(quantity), updatedAt: new Date() })
+        .where(eq(inventori.id, existingItem.id));
+    } else {
+      await db.insert(inventori).values({
+        userId: req.user.id,
+        item: crop.name + ' (Panen)',
+        category: 'Hasil Panen',
+        stock: parseInt(quantity),
+        unit: 'Kg',
+        status: 'Aman'
+      });
+    }
+
+    // 3. Delete crop from lahan
+    await db.delete(tanaman).where(eq(tanaman.id, crop.id));
+
+    res.json({ message: 'Panen berhasil dimasukkan ke Gudang Logistik.' });
+  } catch (err) {
+    console.error('Panen error:', err);
+    res.status(500).json({ error: 'Gagal memproses panen.' });
+  }
+});
+
 export default router;

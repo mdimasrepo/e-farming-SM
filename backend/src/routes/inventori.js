@@ -1,20 +1,46 @@
 import { Router } from 'express';
 import { db } from '../db/index.js';
 import { inventori } from '../db/schema.js';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, inArray } from 'drizzle-orm';
 import { authMiddleware } from '../middleware/auth.js';
 
 const router = Router();
 router.use(authMiddleware);
 
+// Helper function to get all admin IDs
+async function getAdminIds() {
+  const { users } = await import('../db/schema.js');
+  const adminUsers = await db.select().from(users).where(eq(users.role, 'admin'));
+  return adminUsers.length > 0 ? adminUsers.map(u => u.id) : [1];
+}
+
 // GET /api/inventori
 router.get('/', async (req, res) => {
   try {
-    const result = await db.select().from(inventori).where(eq(inventori.userId, req.user.id));
-    res.json(result);
+    if (req.user.role === 'admin') {
+      const adminIds = await getAdminIds();
+      const result = await db.select().from(inventori).where(inArray(inventori.userId, adminIds));
+      return res.json(result);
+    } else {
+      const result = await db.select().from(inventori).where(eq(inventori.userId, req.user.id));
+      return res.json(result);
+    }
   } catch (err) {
     console.error('Get inventori error:', err);
     res.status(500).json({ error: 'Gagal mengambil data inventori.' });
+  }
+});
+
+// GET /api/inventori/katalog
+// Fetch Admin's inventory for the marketplace
+router.get('/katalog', async (req, res) => {
+  try {
+    const adminIds = await getAdminIds();
+    const result = await db.select().from(inventori).where(inArray(inventori.userId, adminIds));
+    res.json(result);
+  } catch (err) {
+    console.error('Get katalog error:', err);
+    res.status(500).json({ error: 'Gagal mengambil data katalog Koperasi/Admin.' });
   }
 });
 
@@ -27,8 +53,17 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: 'Nama barang wajib diisi.' });
     }
 
+    // Always assign items created by Admin to the FIRST admin ID, to avoid fragmentation.
+    // However, if we do that, we must ensure Admin 1 exists.
+    // If it's a Petani, they create their own.
+    let targetUserId = req.user.id;
+    if (req.user.role === 'admin') {
+      const adminIds = await getAdminIds();
+      targetUserId = adminIds[0];
+    }
+
     const [newItem] = await db.insert(inventori).values({
-      userId: req.user.id,
+      userId: targetUserId,
       item,
       category,
       stock: stock || 0,
@@ -48,9 +83,17 @@ router.put('/:id', async (req, res) => {
   try {
     const { item, category, stock, unit, status } = req.body;
 
+    let condition;
+    if (req.user.role === 'admin') {
+      const adminIds = await getAdminIds();
+      condition = and(eq(inventori.id, parseInt(req.params.id)), inArray(inventori.userId, adminIds));
+    } else {
+      condition = and(eq(inventori.id, parseInt(req.params.id)), eq(inventori.userId, req.user.id));
+    }
+
     const [updated] = await db.update(inventori)
       .set({ item, category, stock, unit, status, updatedAt: new Date() })
-      .where(and(eq(inventori.id, parseInt(req.params.id)), eq(inventori.userId, req.user.id)))
+      .where(condition)
       .returning();
 
     if (!updated) {
@@ -67,8 +110,16 @@ router.put('/:id', async (req, res) => {
 // DELETE /api/inventori/:id
 router.delete('/:id', async (req, res) => {
   try {
+    let condition;
+    if (req.user.role === 'admin') {
+      const adminIds = await getAdminIds();
+      condition = and(eq(inventori.id, parseInt(req.params.id)), inArray(inventori.userId, adminIds));
+    } else {
+      condition = and(eq(inventori.id, parseInt(req.params.id)), eq(inventori.userId, req.user.id));
+    }
+
     const [deleted] = await db.delete(inventori)
-      .where(and(eq(inventori.id, parseInt(req.params.id)), eq(inventori.userId, req.user.id)))
+      .where(condition)
       .returning();
 
     if (!deleted) {

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
-import api, { checkMaintenanceStatus } from '../utils/api';
+import api, { checkMaintenanceStatus, getUser } from '../utils/api';
 import './Layout.css';
 
 export default function Layout() {
@@ -11,9 +11,14 @@ export default function Layout() {
 
   useEffect(() => {
     const checkStatus = async () => {
-      const user = JSON.parse(localStorage.getItem('user'));
+      const user = getUser();
       if (!user) {
         navigate('/login');
+        return;
+      }
+      
+      if (user.role === 'admin') {
+        navigate('/admin/dashboard');
         return;
       }
       

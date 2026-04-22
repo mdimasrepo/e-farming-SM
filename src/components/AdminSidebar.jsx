@@ -3,6 +3,8 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { ShieldCheck, LayoutDashboard, Users, Map, Sprout, Package, Calendar, BookOpen, MessageSquare, Settings, LogOut, ArrowLeft, Bug } from 'lucide-react';
 import './AdminSidebar.css';
 
+import { clearAuth } from '../utils/api';
+
 export default function AdminSidebar() {
   const navigate = useNavigate();
   
@@ -26,8 +28,7 @@ export default function AdminSidebar() {
   ];
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    clearAuth();
     navigate('/login');
   };
 

@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react';
+const fs = require('fs');
+
+const content = `import React, { useState, useEffect } from 'react';
 import { PackageSearch, Plus, AlertTriangle, Edit3, Trash2, X, Search, Filter, Store, Wheat, FileClock, CheckCircle, XCircle } from 'lucide-react';
 import { getInventori, createInventori, updateInventori, deleteInventori, getAdminPengajuan, terimaPengajuan, tolakPengajuan } from '../../utils/api';
 
@@ -109,21 +111,21 @@ export default function AdminInventori() {
 
       <div className="tabs" style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
         <button 
-          className={`btn-tab ${activeTab === 'suplai' ? 'active' : ''}`} 
+          className={\`btn-tab \${activeTab === 'suplai' ? 'active' : ''}\`} 
           onClick={() => { setActiveTab('suplai'); setFilterCat('Semua'); }}
           style={{ flex: 1, padding: '1rem', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: activeTab === 'suplai' ? 'var(--primary)' : 'rgba(255,255,255,0.05)', color: activeTab === 'suplai' ? 'white' : 'var(--text-secondary)' }}
         >
           <Store size={20} /> Katalog Suplai Petani
         </button>
         <button 
-          className={`btn-tab ${activeTab === 'panen' ? 'active' : ''}`} 
+          className={\`btn-tab \${activeTab === 'panen' ? 'active' : ''}\`} 
           onClick={() => { setActiveTab('panen'); setFilterCat('Semua'); }}
           style={{ flex: 1, padding: '1rem', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: activeTab === 'panen' ? 'var(--emerald-primary)' : 'rgba(255,255,255,0.05)', color: activeTab === 'panen' ? 'white' : 'var(--text-secondary)' }}
         >
           <Wheat size={20} /> Gudang Penampung Panen
         </button>
         <button 
-          className={`btn-tab ${activeTab === 'pengajuan' ? 'active' : ''}`} 
+          className={\`btn-tab \${activeTab === 'pengajuan' ? 'active' : ''}\`} 
           onClick={() => { setActiveTab('pengajuan'); setFilterCat('Semua'); }}
           style={{ flex: 1, padding: '1rem', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyItems: 'center', gap: '8px', background: activeTab === 'pengajuan' ? 'var(--warning)' : 'rgba(255,255,255,0.05)', color: activeTab === 'pengajuan' ? 'white' : 'var(--text-secondary)' }}
         >
@@ -252,7 +254,7 @@ export default function AdminInventori() {
         <div className="modal-overlay" onClick={() => setShowModal(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
           <div className="modal-content glass-panel" onClick={e => e.stopPropagation()} style={{ background: 'var(--bg-primary)', padding: '2rem', borderRadius: '12px', width: '90%', maxWidth: '500px' }}>
             <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
-              <h3>{editItem ? 'Edit Barang Pusat' : `Buat ${activeTab === 'panen' ? 'Pencatatan Panen' : 'Katalog Baru'}`}</h3>
+              <h3>{editItem ? 'Edit Barang Pusat' : \`Buat \${activeTab === 'panen' ? 'Pencatatan Panen' : 'Katalog Baru'}\`}</h3>
               <button className="btn-icon" onClick={() => setShowModal(false)}><X size={20} /></button>
             </div>
             <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -319,3 +321,6 @@ export default function AdminInventori() {
     </div>
   );
 }
+`;
+
+fs.writeFileSync('d:/aplikasi skripsi/dimas/src/pages/admin/AdminInventori.jsx', content);

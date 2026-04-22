@@ -123,28 +123,46 @@ router.get('/konsultasi', async (req, res) => {
   try {
     const result = await db.select().from(konsultasiPakar).orderBy(sql`${konsultasiPakar.id} ASC`);
     res.json(result);
-  } catch (err) { res.status(500).json({ error: 'Gagal' }); }
+  } catch (err) { 
+    console.error('Admin API Error:', err);
+    res.status(500).json({ error: err.message || 'Gagal' }); 
+  }
 });
 
 router.post('/konsultasi', async (req, res) => {
   try {
-    const [inserted] = await db.insert(konsultasiPakar).values(req.body).returning();
+    const data = { ...req.body };
+    delete data.id;
+    delete data.createdAt;
+    const [inserted] = await db.insert(konsultasiPakar).values(data).returning();
     res.json(inserted);
-  } catch (err) { res.status(500).json({ error: 'Gagal' }); }
+  } catch (err) { 
+    console.error('Admin API Error:', err);
+    res.status(500).json({ error: err.message || 'Gagal' }); 
+  }
 });
 
 router.put('/konsultasi/:id', async (req, res) => {
   try {
-    const [updated] = await db.update(konsultasiPakar).set(req.body).where(eq(konsultasiPakar.id, parseInt(req.params.id))).returning();
+    const data = { ...req.body };
+    delete data.id;
+    delete data.createdAt;
+    const [updated] = await db.update(konsultasiPakar).set(data).where(eq(konsultasiPakar.id, parseInt(req.params.id))).returning();
     res.json(updated);
-  } catch (err) { res.status(500).json({ error: 'Gagal' }); }
+  } catch (err) { 
+    console.error('Admin API Error:', err);
+    res.status(500).json({ error: err.message || 'Gagal' }); 
+  }
 });
 
 router.delete('/konsultasi/:id', async (req, res) => {
   try {
     await db.delete(konsultasiPakar).where(eq(konsultasiPakar.id, parseInt(req.params.id)));
     res.json({ message: 'Dihapus' });
-  } catch (err) { res.status(500).json({ error: 'Gagal' }); }
+  } catch (err) { 
+    console.error('Admin API Error:', err);
+    res.status(500).json({ error: err.message || 'Gagal' }); 
+  }
 });
 
 // ==============================

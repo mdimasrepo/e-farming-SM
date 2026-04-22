@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Watch, CheckCircle2, AlertCircle, Plus, X, Edit3, Trash2, Leaf } from 'lucide-react';
-import { getTanaman, createTanaman, updateTanaman, deleteTanaman, getLahan } from '../utils/api';
+import { Calendar, Watch, CheckCircle2, AlertCircle, Plus, X, Edit3, Trash2, Leaf, PackagePlus } from 'lucide-react';
+import { getTanaman, createTanaman, updateTanaman, deleteTanaman, getLahan, panenTanaman } from '../utils/api';
 import './DataTanaman.css';
 
 const PLANT_ICONS = { 'Padi': '🌾', 'Jagung': '🌽', 'Kedelai': '🌱', 'Tomat': '🍅', 'Cabai': '🌶️', 'Semangka': '🍉', 'Melon': '🍈' };
@@ -14,6 +14,8 @@ export default function DataTanaman() {
   const [editItem, setEditItem] = useState(null);
   const [saving, setSaving] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [panenModal, setPanenModal] = useState(null);
+  const [panenAmount, setPanenAmount] = useState('');
   const [form, setForm] = useState({ name: '', icon: '🌾', lahanName: '', plantDate: '', estHarvest: '', progress: 0, health: 'Baik' });
 
   useEffect(() => { fetchData(); }, []);
@@ -57,6 +59,18 @@ export default function DataTanaman() {
   const handleDelete = async (id) => {
     try { await deleteTanaman(id); setDeleteConfirm(null); fetchData(); }
     catch (err) { alert(err.message); }
+  };
+
+  const handlePanen = async () => {
+    if (!panenAmount) return;
+    setSaving(true);
+    try {
+      await panenTanaman(panenModal.id, panenAmount);
+      setPanenModal(null);
+      setPanenAmount('');
+      fetchData();
+    } catch (err) { alert(err.message); }
+    finally { setSaving(false); }
   };
 
   const readyCount = crops.filter(c => c.progress >= 90).length;
@@ -150,6 +164,12 @@ export default function DataTanaman() {
                   </div>
                 </div>
               </div>
+              
+              {crop.progress >= 90 && (
+                <button className="btn-primary" style={{ width: '100%', marginTop: '1rem', background: 'var(--emerald-primary)' }} onClick={() => setPanenModal(crop)}>
+                  <PackagePlus size={16} /> Panen ke Gudang
+                </button>
+              )}
             </div>
           ))}
         </div>
@@ -209,6 +229,37 @@ export default function DataTanaman() {
               <button className="btn-secondary" onClick={() => setShowModal(false)}>Batal</button>
               <button className="btn-primary" onClick={handleSave} disabled={saving || !form.name.trim()}>
                 {saving ? 'Menyimpan...' : editItem ? 'Update' : 'Simpan'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Panen */}
+      {panenModal && (
+        <div className="modal-overlay" onClick={() => setPanenModal(null)}>
+          <div className="modal-content delete-modal" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Panen Tanaman: {panenModal.name}</h3>
+              <button className="btn-icon" onClick={() => setPanenModal(null)}><X size={20} /></button>
+            </div>
+            <div className="modal-body" style={{ textAlign: 'left' }}>
+              <p style={{ marginBottom: '1rem' }}>Masukkan hasil taksiran panen (Tonase) dari lahan <b>{panenModal.lahanName}</b> untuk dikirim otomatis ke Gudang Logistik.</p>
+              <div className="form-group">
+                <label>Hasil Panen (Satuan Kg)</label>
+                <input 
+                  type="number" 
+                  className="form-input" 
+                  placeholder="Misal: 500" 
+                  value={panenAmount}
+                  onChange={(e) => setPanenAmount(e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="modal-footer" style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem' }}>
+              <button className="btn-secondary" onClick={() => setPanenModal(null)}>Batal</button>
+              <button className="btn-primary" onClick={handlePanen} disabled={saving || !panenAmount} style={{ background: 'var(--emerald-primary)' }}>
+                {saving ? 'Memproses...' : 'Kirim ke Gudang'}
               </button>
             </div>
           </div>

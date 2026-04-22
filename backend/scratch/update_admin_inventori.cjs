@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { PackageSearch, Plus, AlertTriangle, Edit3, Trash2, X, Search, Filter, Store, Wheat, FileClock, CheckCircle, XCircle } from 'lucide-react';
-import { getInventori, createInventori, updateInventori, deleteInventori, getAdminPengajuan, terimaPengajuan, tolakPengajuan } from '../../utils/api';
+const fs = require('fs');
+
+const updated = `import React, { useState, useEffect } from 'react';
+import { PackageSearch, Plus, AlertTriangle, Edit3, Trash2, X, Search, Filter, Store, Wheat } from 'lucide-react';
+import { getInventori, createInventori, updateInventori, deleteInventori } from '../../utils/api';
 
 const CATEGORIES = ['Pupuk', 'Benih', 'Pestisida', 'Alat Pertanian', 'Lainnya'];
 const STATUS_OPTIONS = ['Aman', 'Menipis', 'Kritis'];
 
 export default function AdminInventori() {
-  const [activeTab, setActiveTab] = useState('suplai'); // 'suplai', 'panen', 'pengajuan'
+  const [activeTab, setActiveTab] = useState('suplai'); // 'suplai' or 'panen'
   const [inventory, setInventory] = useState([]);
-  const [pengajuan, setPengajuan] = useState([]);
   const [loading, setLoading] = useState(true);
   
   const [showModal, setShowModal] = useState(false);
@@ -20,17 +21,10 @@ export default function AdminInventori() {
   const [saving, setSaving] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
 
-  useEffect(() => { 
-    fetchInventori(); 
-    fetchPengajuan();
-  }, []);
+  useEffect(() => { fetchInventori(); }, []);
 
   const fetchInventori = async () => {
     try { setInventory(await getInventori()); } catch (err) { console.error(err); } finally { setLoading(false); }
-  };
-
-  const fetchPengajuan = async () => {
-    try { setPengajuan(await getAdminPengajuan()); } catch (err) { console.error(err); }
   };
 
   const openAdd = () => { 
@@ -65,20 +59,10 @@ export default function AdminInventori() {
     catch (err) { alert(err.message); }
   };
 
-  const handleKonfirmasi = async (id, jenis) => {
-    try {
-      if (jenis === 'terima') await terimaPengajuan(id);
-      else await tolakPengajuan(id);
-      fetchPengajuan();
-      fetchInventori();
-    } catch (err) { alert(err.message); }
-  };
-
   // Logika Filter Tab
   const currentTabInventory = inventory.filter(inv => {
     if (activeTab === 'suplai') return inv.category !== 'Hasil Panen';
-    if (activeTab === 'panen') return inv.category === 'Hasil Panen';
-    return false;
+    return inv.category === 'Hasil Panen';
   });
 
   const filtered = currentTabInventory.filter(inv => {
@@ -86,8 +70,6 @@ export default function AdminInventori() {
     const matchSearch = inv.item.toLowerCase().includes(searchQuery.toLowerCase());
     return matchCat && matchSearch;
   });
-
-  const filteredPengajuan = pengajuan.filter(p => p.itemName.toLowerCase().includes(searchQuery.toLowerCase()) || p.userName.toLowerCase().includes(searchQuery.toLowerCase()));
 
   const totalItems = currentTabInventory.length;
   const criticalItems = currentTabInventory.filter(i => i.status === 'Kritis' || i.status === 'Menipis').length;
@@ -97,41 +79,31 @@ export default function AdminInventori() {
     <div className="inventori animate-fade-in" style={{ padding: '2rem' }}>
       <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
         <div>
-          <h2>Pusat Logistik & Inventori</h2>
-          <p className="text-muted">Kelola katalog barang suplai, tampung panen, dan validasi penjualan Petani.</p>
+          <h2>Pusat Logistik & Inventori Koperasi</h2>
+          <p className="text-muted">Kelola katalog barang modal (pupuk, benih) dan tampung hasil panen petani secara terpusat.</p>
         </div>
-        {activeTab !== 'pengajuan' && (
-          <button className="btn-primary" onClick={openAdd} style={{ padding: '0.6rem 1.2rem', display: 'flex', gap: '0.5rem', background: 'var(--primary)' }}>
-            <Plus size={18} /> Tambah Barang
-          </button>
-        )}
+        <button className="btn-primary" onClick={openAdd} style={{ padding: '0.6rem 1.2rem', display: 'flex', gap: '0.5rem', background: 'var(--primary)' }}>
+          <Plus size={18} /> Tambah Barang
+        </button>
       </div>
 
-      <div className="tabs" style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+      <div className="tabs" style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
         <button 
-          className={`btn-tab ${activeTab === 'suplai' ? 'active' : ''}`} 
+          className={\`btn-tab \${activeTab === 'suplai' ? 'active' : ''}\`} 
           onClick={() => { setActiveTab('suplai'); setFilterCat('Semua'); }}
           style={{ flex: 1, padding: '1rem', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: activeTab === 'suplai' ? 'var(--primary)' : 'rgba(255,255,255,0.05)', color: activeTab === 'suplai' ? 'white' : 'var(--text-secondary)' }}
         >
           <Store size={20} /> Katalog Suplai Petani
         </button>
         <button 
-          className={`btn-tab ${activeTab === 'panen' ? 'active' : ''}`} 
+          className={\`btn-tab \${activeTab === 'panen' ? 'active' : ''}\`} 
           onClick={() => { setActiveTab('panen'); setFilterCat('Semua'); }}
           style={{ flex: 1, padding: '1rem', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: activeTab === 'panen' ? 'var(--emerald-primary)' : 'rgba(255,255,255,0.05)', color: activeTab === 'panen' ? 'white' : 'var(--text-secondary)' }}
         >
           <Wheat size={20} /> Gudang Penampung Panen
         </button>
-        <button 
-          className={`btn-tab ${activeTab === 'pengajuan' ? 'active' : ''}`} 
-          onClick={() => { setActiveTab('pengajuan'); setFilterCat('Semua'); }}
-          style={{ flex: 1, padding: '1rem', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyItems: 'center', gap: '8px', background: activeTab === 'pengajuan' ? 'var(--warning)' : 'rgba(255,255,255,0.05)', color: activeTab === 'pengajuan' ? 'white' : 'var(--text-secondary)' }}
-        >
-          <FileClock size={20} /> Pengajuan Masuk {pengajuan.length > 0 && <span style={{ background: 'red', color: 'white', borderRadius: '50%', padding: '2px 6px', fontSize: '10px', marginLeft: '5px' }}>{pengajuan.length}</span>}
-        </button>
       </div>
 
-      {activeTab !== 'pengajuan' && (
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
         <div className="stat-card glass-panel" style={{ padding: '1.5rem', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <PackageSearch size={32} color="var(--primary)" />
@@ -146,12 +118,11 @@ export default function AdminInventori() {
           <div><h3 style={{ fontSize: '1.5rem', margin: 0, color: criticalItems > 0 ? 'var(--danger)' : 'inherit' }}>{criticalItems}</h3><p className="text-muted" style={{ margin: 0, fontSize: '0.9rem' }}>Stok Kritis</p></div>
         </div>
       </div>
-      )}
 
       <div className="inv-toolbar" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem', gap: '1rem', flexWrap: 'wrap' }}>
         <div className="inv-search glass-panel" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', borderRadius: '8px', flex: 1, minWidth: '250px' }}>
           <Search size={18} className="text-muted" />
-          <input type="text" placeholder="Cari barang atau nama petani..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} style={{ background: 'transparent', border: 'none', color: 'white', width: '100%', outline: 'none' }} />
+          <input type="text" placeholder="Cari barang..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} style={{ background: 'transparent', border: 'none', color: 'white', width: '100%', outline: 'none' }} />
         </div>
         {activeTab === 'suplai' && (
           <div className="inv-filters" style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto' }}>
@@ -167,47 +138,6 @@ export default function AdminInventori() {
       <div className="glass-panel" style={{ borderRadius: '12px', padding: '1rem', overflowX: 'auto' }}>
         {loading ? (
           <p style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-secondary)' }}>Memuat data invenrori...</p>
-        ) : activeTab === 'pengajuan' ? (
-          filteredPengajuan.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '4rem 1rem' }}>
-              <FileClock size={48} style={{ opacity: 0.3, margin: '0 auto 1rem', color: 'var(--warning)' }} />
-              <h3 style={{ color: 'var(--text-secondary)' }}>Belum ada pengajuan penjualan dari petani</h3>
-            </div>
-          ) : (
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-                  <th style={{ padding: '1rem', color: 'var(--text-secondary)' }}>Tanggal</th>
-                  <th style={{ padding: '1rem', color: 'var(--text-secondary)' }}>Petani</th>
-                  <th style={{ padding: '1rem', color: 'var(--text-secondary)' }}>Barang Jual</th>
-                  <th style={{ padding: '1rem', color: 'var(--text-secondary)' }}>Kuantitas</th>
-                  <th style={{ padding: '1rem', color: 'var(--text-secondary)', textAlign: 'center' }}>Total Rp</th>
-                  <th style={{ padding: '1rem', color: 'var(--text-secondary)', textAlign: 'center' }}>Aksi Persetujuan</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredPengajuan.map((p) => (
-                  <tr key={p.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                    <td style={{ padding: '1rem' }}>{new Date(p.date).toLocaleDateString('id-ID')}</td>
-                    <td style={{ padding: '1rem' }}><strong>{p.userName}</strong></td>
-                    <td style={{ padding: '1rem' }}>{p.itemName}</td>
-                    <td style={{ padding: '1rem' }}>{p.quantity} Kg</td>
-                    <td style={{ padding: '1rem', textAlign: 'center' }}>Rp {Number(p.totalNominal).toLocaleString('id-ID')}</td>
-                    <td style={{ padding: '1rem', textAlign: 'center' }}>
-                      <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
-                        <button onClick={() => handleKonfirmasi(p.id, 'terima')} title="Terima" style={{ background: 'rgba(16, 185, 129, 0.2)', padding: '0.5rem', borderRadius: '8px', border: 'none', cursor: 'pointer', color: 'var(--emerald-primary)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <CheckCircle size={16} /> Terima
-                        </button>
-                        <button onClick={() => handleKonfirmasi(p.id, 'tolak')} title="Tolak" style={{ background: 'rgba(239, 68, 68, 0.2)', padding: '0.5rem', borderRadius: '8px', border: 'none', cursor: 'pointer', color: 'var(--danger)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <XCircle size={16} /> Tolak
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )
         ) : filtered.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '4rem 1rem' }}>
             <PackageSearch size={48} style={{ opacity: 0.3, margin: '0 auto 1rem' }} />
@@ -252,7 +182,7 @@ export default function AdminInventori() {
         <div className="modal-overlay" onClick={() => setShowModal(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
           <div className="modal-content glass-panel" onClick={e => e.stopPropagation()} style={{ background: 'var(--bg-primary)', padding: '2rem', borderRadius: '12px', width: '90%', maxWidth: '500px' }}>
             <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
-              <h3>{editItem ? 'Edit Barang Pusat' : `Buat ${activeTab === 'panen' ? 'Pencatatan Panen' : 'Katalog Baru'}`}</h3>
+              <h3>{editItem ? 'Edit Barang Pusat' : \`Buat \${activeTab === 'panen' ? 'Pencatatan Panen' : 'Katalog Baru'}\`}</h3>
               <button className="btn-icon" onClick={() => setShowModal(false)}><X size={20} /></button>
             </div>
             <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -319,3 +249,6 @@ export default function AdminInventori() {
     </div>
   );
 }
+`;
+
+fs.writeFileSync('d:/aplikasi skripsi/dimas/src/pages/admin/AdminInventori.jsx', updated);

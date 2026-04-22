@@ -6,6 +6,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 import express from 'express';
 import cors from 'cors';
+import compression from 'compression';
 
 import authRoutes from './routes/auth.js';
 import lahanRoutes from './routes/lahan.js';
@@ -17,6 +18,7 @@ import cuacaRoutes from './routes/cuaca.js';
 import diagnosaRoutes from './routes/diagnosa.js';
 import konsultasiRoutes from './routes/konsultasi.js';
 import bugsRoutes from './routes/bugs.js';
+import jualbeliRoutes from './routes/jualbeli.js';
 
 import adminRoutes from './routes/admin.js';
 import { authMiddleware } from './middleware/auth.js';
@@ -31,6 +33,7 @@ global.CUSTOM_API_KEY = process.env.OPENROUTER_API_KEY || '';
 
 // Middleware
 app.use(cors());
+app.use(compression());
 app.use(express.json({ limit: '10mb' }));
 
 // Public Endpoints
@@ -49,6 +52,7 @@ app.use('/api/cuaca', cuacaRoutes);
 app.use('/api/diagnosa', diagnosaRoutes);
 app.use('/api/konsultasi', konsultasiRoutes);
 app.use('/api/bugs', bugsRoutes);
+app.use('/api/jualbeli', jualbeliRoutes);
 
 // Admin Route Group
 app.use('/api/admin', adminRoutes);
@@ -102,7 +106,49 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'Tani.Smart API is running 🌱', maintenance: global.MAINTENANCE_MODE });
 });
 
-app.listen(PORT, () => {
+// Handler 404 (Pencegah respons HTML)
+app.use((req, res, next) => {
+  res.status(404).json({ error: `Rute API '${req.url}' tidak ditemukan.` });
+});
+
+// Global Error Handler (Pencegah respons DOCTYPE HTML saat syntax error)
+app.use((err, req, res, next) => {
+  console.error('🚨 SERVER ERROR:', err.stack || err);
+  
+  if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+    return res.status(400).json({ error: 'Data yang dikirim tidak valid.' });
+  }
+  
+  res.status(err.status || 500).json({ 
+    error: 'Terjadi kegagalan server. Mohon coba lagi.' 
+  });
+});
+
+// Prevent silent crashes
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('⚠️  Unhandled Rejection:', reason);
+});
+process.on('uncaughtException', (err) => {
+  console.error('🚨 Uncaught Exception:', err);
+});
+
+const server = app.listen(PORT, () => {
   console.log(`\n🌱 Tani.Smart API Server berjalan di http://localhost:${PORT}`);
   console.log(`   Health check: http://localhost:${PORT}/api/health\n`);
 });
+
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(`❌ Port ${PORT} sudah digunakan proses lain!`);
+    console.error(`   Jalankan: netstat -ano | findstr :${PORT}`);
+    console.error(`   Lalu kill prosesnya: taskkill /F /PID <PID>`);
+    process.exit(1);
+  } else {
+    console.error('🚨 Server error:', err);
+    process.exit(1);
+  }
+});
+
+// Keep the process alive
+server.keepAliveTimeout = 65000;
+server.headersTimeout = 66000;

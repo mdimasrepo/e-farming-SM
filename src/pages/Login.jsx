@@ -63,7 +63,7 @@ export default function Login() {
                 <Mail className="input-icon" size={18} />
                 <input 
                   type="text" 
-                  placeholder="dimas@tanismart.com"
+                  placeholder="Masukkan Email atau Username Anda"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required

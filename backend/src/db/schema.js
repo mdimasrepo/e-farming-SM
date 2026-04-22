@@ -126,3 +126,18 @@ export const bugReports = pgTable('bug_reports', {
   adminReply: text('admin_reply'),
   createdAt: timestamp('created_at').defaultNow(),
 });
+
+// ==============================
+// TRANSAKSI JUAL BELI
+// ==============================
+export const transaksiJualBeli = pgTable('transaksi_jualbeli', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  type: varchar('type', { length: 10 }).notNull(), // 'Jual' atau 'Beli'
+  itemName: varchar('item_name', { length: 150 }).notNull(),
+  quantity: decimal('quantity', { precision: 10, scale: 2 }).default(0),
+  pricePerUnit: bigint('price_per_unit', { mode: 'number' }).default(0),
+  totalNominal: bigint('total_nominal', { mode: 'number' }).notNull(),
+  status: varchar('status', { length: 20 }).default('Selesai'),
+  date: timestamp('date').defaultNow(),
+});

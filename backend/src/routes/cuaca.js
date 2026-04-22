@@ -70,7 +70,7 @@ router.get('/', async (req, res) => {
 });
 
 // GET /api/cuaca/search?q=bandar+lampung
-// Cari desa/kecamatan/kota seluruh Indonesia menggunakan Open-Meteo Geocoding
+// Cari desa/kecamatan/kota/kodepos seluruh Indonesia (Hybrid OSM Nominatim + Open-Meteo)
 router.get('/search', async (req, res) => {
   try {
     const query = req.query.q;
@@ -79,16 +79,60 @@ router.get('/search', async (req, res) => {
       return res.json([]);
     }
 
-    const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=10&language=id&country_code=ID`;
+    const isZip = /^\d+$/.test(query.trim());
+    
+    // 1. Coba OpenStreetMap Nominatim (Super lengkap untuk desa & support kodepos)
+    let url = '';
+    if (isZip) {
+      url = `https://nominatim.openstreetmap.org/search?postalcode=${encodeURIComponent(query.trim())}&countrycodes=id&format=json&addressdetails=1&limit=5`;
+    } else {
+      url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query.trim())}&countrycodes=id&format=json&addressdetails=1&limit=8`;
+    }
 
-    const response = await fetch(url);
-    const data = await response.json();
+    const response = await fetch(url, { headers: { 'User-Agent': 'TaniSmart/1.5 (Student Project)' } });
+    let data = [];
+    if (response.ok) {
+        data = await response.json();
+    }
 
-    if (!data.results || data.results.length === 0) {
+    // Jika Nominatim berhasil menemukan data
+    if (Array.isArray(data) && data.length > 0) {
+      const results = data.map((r) => {
+        const addr = r.address || {};
+        // Prioritas penamaan lokasi terkecil
+        const name = addr.village || addr.neighbourhood || addr.hamlet || addr.town || addr.city || r.name;
+        const kecamatan = addr.municipality || addr.city_district || addr.suburb || '';
+        const kabupaten = addr.city || addr.county || addr.state_district || '';
+        const provinsi = addr.state || '';
+        const zip = addr.postcode ? `(Pos: ${addr.postcode})` : '';
+        
+        // Buat set agar nama yang kembar (misal kota madiun, kab madiun) tidak double
+        const displayArr = [...new Set([name, kecamatan, kabupaten, provinsi].filter(Boolean))];
+        
+        return {
+          id: r.place_id,
+          name: name,
+          admin1: provinsi,
+          admin2: kabupaten,
+          admin3: kecamatan,
+          latitude: r.lat,
+          longitude: r.lon,
+          displayName: `${displayArr.join(', ')} ${zip}`.trim(),
+        };
+      });
+      return res.json(results);
+    }
+
+    // 2. FALLBACK ke Open-Meteo Geocoding jika kodepos/desa dari OSM API limit atau gagal
+    const fallbackUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query.trim())}&count=8&language=id&country_code=ID`;
+    const fbResponse = await fetch(fallbackUrl);
+    const fbData = await fbResponse.json();
+
+    if (!fbData.results || fbData.results.length === 0) {
       return res.json([]);
     }
 
-    const results = data.results.map((r) => ({
+    const results = fbData.results.map((r) => ({
       id: r.id,
       name: r.name,
       admin1: r.admin1 || '',     // Provinsi

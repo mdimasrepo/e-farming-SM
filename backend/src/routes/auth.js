@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { db } from '../db/index.js';
 import { users } from '../db/schema.js';
-import { eq } from 'drizzle-orm';
+import { eq, or } from 'drizzle-orm';
 
 const router = Router();
 
@@ -56,11 +56,11 @@ router.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res.status(400).json({ error: 'Email dan password harus diisi.' });
+      return res.status(400).json({ error: 'Username/Email dan password harus diisi.' });
     }
 
-    // Cari user
-    const [user] = await db.select().from(users).where(eq(users.email, email));
+    // Cari user berdasarkan email ATAU name (username)
+    const [user] = await db.select().from(users).where(or(eq(users.email, email), eq(users.name, email)));
     if (!user) {
       return res.status(401).json({ error: 'Email atau password salah.' });
     }

@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import AdminSidebar from './AdminSidebar';
 import { ShieldAlert, Bell, ChevronDown, LogOut } from 'lucide-react';
-import api, { getAdminBugs } from '../utils/api';
+import api, { getAdminBugs, getUser, clearAuth } from '../utils/api';
 import './Topbar.css'; // Reuse topbar classes
 import '../pages/admin/Admin.css';
 
@@ -10,7 +10,7 @@ export default function AdminLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const [maintenance, setMaintenance] = useState(false);
-  const user = JSON.parse(localStorage.getItem('user'));
+  const user = getUser();
 
   // Dropdown states
   const [showDropdown, setShowDropdown] = useState(false);
@@ -128,7 +128,7 @@ export default function AdminLayout() {
                     </div>
                   </div>
                   <div className="dropdown-divider"></div>
-                  <button className="dropdown-item logout" onClick={() => { localStorage.removeItem('token'); localStorage.removeItem('user'); window.location.href = '/login'; }}>
+                  <button className="dropdown-item logout" onClick={() => { clearAuth(); window.location.href = '/login'; }}>
                     <LogOut size={16} /> Keluar
                   </button>
                 </div>

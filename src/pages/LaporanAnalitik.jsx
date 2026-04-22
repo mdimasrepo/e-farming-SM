@@ -41,6 +41,47 @@ export default function LaporanAnalitik() {
 
   const tooltipStyle = { backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--glass-border)', color: 'var(--text-primary)', borderRadius: '8px' };
 
+  const handleDownload = () => {
+    if (productivityData.length === 0 && revenueData.length === 0) {
+      alert('Belum ada data laporan untuk diunduh.');
+      return;
+    }
+
+    let csv = 'LAPORAN PERTANIAN TANI.SMART\n';
+    csv += `Tanggal Unduh: ${new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}\n\n`;
+
+    // Produktivitas
+    if (productivityData.length > 0) {
+      csv += 'PRODUKTIVITAS (Ton)\n';
+      csv += 'Bulan,Padi,Jagung,Kedelai,Total\n';
+      productivityData.forEach(d => {
+        const total = (d.padi || 0) + (d.jagung || 0) + (d.kedelai || 0);
+        csv += `${d.name},${d.padi || 0},${d.jagung || 0},${d.kedelai || 0},${total}\n`;
+      });
+      csv += `Total,${totalPadi},${totalJagung},${totalKedelai},${totalPanen}\n\n`;
+    }
+
+    // Revenue
+    if (revenueData.length > 0) {
+      csv += 'PENDAPATAN & PENGELUARAN (Juta Rp)\n';
+      csv += 'Kuartal,Pendapatan,Pengeluaran,Laba\n';
+      revenueData.forEach(d => {
+        csv += `${d.name},${d.revenue || 0},${d.expense || 0},${d.profit || 0}\n`;
+      });
+      csv += `Total,${totalRevenue},${totalExpense},${profit}\n`;
+    }
+
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `laporan_tani_smart_${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="laporan-container animate-fade-in">
       <div className="laporan-header">
@@ -48,7 +89,7 @@ export default function LaporanAnalitik() {
           <h1 className="text-gradient">Laporan & Analitik</h1>
           <p className="text-muted">Pantau performa dan produktivitas pertanian Anda secara real-time.</p>
         </div>
-        <button className="btn-primary">
+        <button className="btn-primary" onClick={handleDownload}>
           <Download size={18} />
           <span>Unduh Laporan</span>
         </button>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import { getAdminPakar, createAdminPakar, updateAdminPakar, deleteAdminPakar } from '../../utils/api';
 import { Search, Edit3, Trash2, X, Plus } from 'lucide-react';
 
@@ -32,7 +33,10 @@ export default function AdminKonsultasi() {
   };
 
   const handleSave = async () => {
-    if (!form.name.trim()) return;
+    if (!form.name.trim()) {
+      alert("Mohon isi Nama Lengkap terlebih dahulu!");
+      return;
+    }
     setSaving(true);
     try {
       if (editItem) await updateAdminPakar(editItem.id, form);
@@ -104,38 +108,60 @@ export default function AdminKonsultasi() {
         </div>
       </div>
 
-      {showModal && (
-        <div className="modal-overlay" onClick={() => setShowModal(false)}>
-          <div className="modal-content glass-panel" onClick={e => e.stopPropagation()} style={{ maxWidth: '600px' }}>
-            <div className="modal-header">
-              <h3>{editItem ? 'Edit Pakar' : 'Tambah Pakar Baru'}</h3>
+    {showModal && ReactDOM.createPortal(
+        <div 
+          onClick={() => setShowModal(false)} 
+          style={{
+            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+            background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
+            zIndex: 9999,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: '2rem',
+          }}
+        >
+          <div 
+            className="glass-panel" 
+            onClick={e => e.stopPropagation()} 
+            style={{
+              width: '100%', maxWidth: '600px',
+              maxHeight: '80vh',
+              display: 'flex', flexDirection: 'column',
+              borderRadius: '16px',
+              boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)',
+            }}
+          >
+            {/* Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.5rem 2rem', borderBottom: '1px solid var(--glass-border)', flexShrink: 0 }}>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>{editItem ? 'Edit Pakar' : 'Tambah Pakar Baru'}</h3>
               <button className="btn-icon" onClick={() => setShowModal(false)}><X size={20} /></button>
             </div>
-            <div className="modal-body" style={{ maxHeight: '60vh', overflowY: 'auto' }}>
+            
+            {/* Body - scrollable */}
+            <div style={{ padding: '1.5rem 2rem', overflowY: 'auto', flex: 1 }}>
               <div className="form-group">
                 <label>Nama Lengkap</label>
                 <input type="text" className="form-input" value={form.name} onChange={e => setForm({...form, name: e.target.value})} placeholder="Dr. Ir. Wahyudi" />
               </div>
-              <div className="form-group">
+              <div className="form-group" style={{ marginTop: '1rem' }}>
                 <label>Bidang Fokus</label>
                 <input type="text" className="form-input" value={form.focus} onChange={e => setForm({...form, focus: e.target.value})} placeholder="Ahli Hama & Penyakit" />
               </div>
-              <div className="form-row">
-                <div className="form-group">
+              <div className="form-row" style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+                <div className="form-group" style={{ flex: 1 }}>
                   <label>Emoji Avatar</label>
                   <input type="text" className="form-input" value={form.emoji} onChange={e => setForm({...form, emoji: e.target.value})} placeholder="👨‍🌾" />
                 </div>
-                <div className="form-group">
+                <div className="form-group" style={{ flex: 1 }}>
                   <label>Warna Aksen</label>
                   <input type="color" style={{ width: '100%', height: '42px', border: 'none', background: 'transparent' }} value={form.color} onChange={e => setForm({...form, color: e.target.value})} />
                 </div>
               </div>
-              <div className="form-row">
-                <div className="form-group">
+              <div className="form-row" style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+                <div className="form-group" style={{ flex: 1 }}>
                   <label>Nomor WhatsApp</label>
                   <input type="text" className="form-input" value={form.wa} onChange={e => setForm({...form, wa: e.target.value})} placeholder="628123..." />
                 </div>
-                <div className="form-group">
+                <div className="form-group" style={{ flex: 1 }}>
                   <label>Status</label>
                   <select className="form-input" value={form.status} onChange={e => setForm({...form, status: e.target.value})}>
                     <option value="Online">Online</option>
@@ -143,19 +169,22 @@ export default function AdminKonsultasi() {
                   </select>
                 </div>
               </div>
-              <div className="form-group">
+              <div className="form-group" style={{ marginTop: '1rem' }}>
                 <label>System Prompt AI (Kepribadian Bot)</label>
                 <textarea className="form-input" rows="4" value={form.prompt} onChange={e => setForm({...form, prompt: e.target.value})} placeholder="Kamu adalah ahli..."></textarea>
               </div>
             </div>
-            <div className="modal-footer">
+            
+            {/* Footer */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', padding: '1.5rem 2rem', borderTop: '1px solid var(--glass-border)', flexShrink: 0 }}>
               <button className="btn-secondary" onClick={() => setShowModal(false)}>Batal</button>
               <button className="btn-primary" onClick={handleSave} disabled={saving || !form.name}>
                 {saving ? 'Menyimpan...' : 'Simpan Pakar'}
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

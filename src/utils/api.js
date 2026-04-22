@@ -1,20 +1,34 @@
 const API_BASE = 'http://localhost:5000/api';
 
+function isAdminPath() {
+  return typeof window !== 'undefined' && window.location.pathname.startsWith('/admin');
+}
+
 // Ambil token dari localStorage
 function getToken() {
-  return localStorage.getItem('token');
+  return isAdminPath() ? localStorage.getItem('admin_token') : localStorage.getItem('token');
 }
 
 // Simpan token + user info
 export function setAuth(token, user) {
-  localStorage.setItem('token', token);
-  localStorage.setItem('user', JSON.stringify(user));
+  if (user.role === 'admin') {
+    localStorage.setItem('admin_token', token);
+    localStorage.setItem('admin_user', JSON.stringify(user));
+  } else {
+    localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(user));
+  }
 }
 
 // Hapus auth (logout)
 export function clearAuth() {
-  localStorage.removeItem('token');
-  localStorage.removeItem('user');
+  if (isAdminPath()) {
+    localStorage.removeItem('admin_token');
+    localStorage.removeItem('admin_user');
+  } else {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+  }
 }
 
 // Cek apakah user sudah login
@@ -24,7 +38,8 @@ export function isAuthenticated() {
 
 // Ambil info user
 export function getUser() {
-  const user = localStorage.getItem('user');
+  const key = isAdminPath() ? 'admin_user' : 'user';
+  const user = localStorage.getItem(key);
   return user ? JSON.parse(user) : null;
 }
 
@@ -43,8 +58,8 @@ async function apiFetch(endpoint, options = {}) {
 
   const res = await fetch(`${API_BASE}${endpoint}`, config);
   
-  // Jika token expired/invalid, redirect ke login
-  if (res.status === 401) {
+  // Jika token expired/invalid, redirect ke login (Kecuali jika sedang mencoba login)
+  if (res.status === 401 && !endpoint.includes('/auth/login')) {
     clearAuth();
     window.location.href = '/login';
     throw new Error('Sesi Anda telah berakhir. Silakan login kembali.');
@@ -130,6 +145,10 @@ export async function getInventori() {
   return apiFetch('/inventori');
 }
 
+export async function getKatalog() {
+  return apiFetch('/inventori/katalog');
+}
+
 export async function createInventori(data) {
   return apiFetch('/inventori', { method: 'POST', body: JSON.stringify(data) });
 }
@@ -140,6 +159,44 @@ export async function updateInventori(id, data) {
 
 export async function deleteInventori(id) {
   return apiFetch(`/inventori/${id}`, { method: 'DELETE' });
+}
+
+// ========== JUAL BELI & PANEN ==========
+export async function panenTanaman(id, quantity) {
+  return apiFetch(`/tanaman/${id}/panen`, { 
+    method: 'POST', 
+    body: JSON.stringify({ quantity }) 
+  });
+}
+
+export async function jualBarang(inventoryId, quantity, pricePerUnit) {
+  return apiFetch('/jualbeli/jual', {
+    method: 'POST',
+    body: JSON.stringify({ inventoryId, quantity, pricePerUnit })
+  });
+}
+
+export async function getRiwayatTransaksi() {
+  return apiFetch('/jualbeli');
+}
+
+export async function beliBarang(inventoryId, quantity, pricePerUnit) {
+  return apiFetch('/jualbeli/beli', {
+    method: 'POST',
+    body: JSON.stringify({ inventoryId, quantity, pricePerUnit })
+  });
+}
+
+export async function getAdminPengajuan() {
+  return apiFetch('/jualbeli/admin/pengajuan');
+}
+
+export async function terimaPengajuan(id) {
+  return apiFetch(`/jualbeli/admin/terima/${id}`, { method: 'PUT' });
+}
+
+export async function tolakPengajuan(id) {
+  return apiFetch(`/jualbeli/admin/tolak/${id}`, { method: 'PUT' });
 }
 
 // ========== LAPORAN ==========
