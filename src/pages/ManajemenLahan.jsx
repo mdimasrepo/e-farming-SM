@@ -313,7 +313,7 @@ export default function ManajemenLahan() {
                   </div>
                   <div className="form-group" style={{ marginBottom: 0 }}>
                     <label style={{ fontSize: '0.85rem' }}>Longitude</label>
-                    <input type="text" inputMode="decimal" value={form.longitude} onChange={e => setForm({ ...form, longitude: e.target.value })} onBlur={e => { const val = parseFloat(e.target.value); if (!isNaN(val)) { setForm(prev => ({ ...prev, longitude: val })); fetchAddress(parseFloat(prev.latitude) || 0, val); } }} placeholder="110.123456" />
+                    <input type="text" inputMode="decimal" value={form.longitude} onChange={e => setForm({ ...form, longitude: e.target.value })} onBlur={e => { const val = parseFloat(e.target.value); if (!isNaN(val)) { setForm(prev => { fetchAddress(parseFloat(prev.latitude) || 0, val); return { ...prev, longitude: val }; }); } }} placeholder="110.123456" />
                   </div>
                 </div>
 
@@ -323,13 +323,13 @@ export default function ManajemenLahan() {
                 </div>
 
                 <div style={{ height: '250px', width: '100%', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border)' }}>
-                  <MapContainer center={[form.latitude, form.longitude]} zoom={13} style={{ height: '100%', width: '100%' }}>
+                  <MapContainer center={[parseFloat(form.latitude) || -5.4, parseFloat(form.longitude) || 105.2]} zoom={13} style={{ height: '100%', width: '100%' }}>
                     <TileLayer
                       url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                       attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     />
-                    <MapUpdater center={{ lat: form.latitude, lng: form.longitude }} />
-                    <LocationMarker position={{ lat: form.latitude, lng: form.longitude }} onChange={handleLocationChange} />
+                    <MapUpdater center={{ lat: parseFloat(form.latitude) || -5.4, lng: parseFloat(form.longitude) || 105.2 }} />
+                    <LocationMarker position={{ lat: parseFloat(form.latitude) || -5.4, lng: parseFloat(form.longitude) || 105.2 }} onChange={handleLocationChange} />
                   </MapContainer>
                 </div>
               </div>
