@@ -47,7 +47,7 @@ export default function AdminUserDetail() {
   const totalTransaksiNominal = (transaksi || []).filter(t => t.status === 'Selesai').reduce((sum, t) => sum + Number(t.totalNominal), 0);
   const tanamanAktif = (tanaman || []).filter(t => t.progress < 100).length;
 
-  const getImageUrl = (url) => url ? (url.startsWith('data:') || url.startsWith('http') ? url : `\${import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace('/api', '') : (window.location.hostname === 'localhost' ? 'http://localhost:5000' : '')}\${url}`) : '';
+  const getImageUrl = (url) => url ? (url.startsWith('data:') || url.startsWith('http') ? url : `${import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace('/api', '') : (window.location.hostname === 'localhost' ? 'http://localhost:5000' : '')}${url}`) : '';
 
   const tabStyle = (tab) => ({
     padding: '0.7rem 1.5rem',

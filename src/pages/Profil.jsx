@@ -44,7 +44,7 @@ export default function Profil() {
   const handleSaveProfile = async () => {
     setSaving(true);
     try {
-      const res = await fetch(`\${import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : '/api')}/auth/profile`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : '/api')}/auth/profile`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -70,7 +70,7 @@ export default function Profil() {
     if (newPw.length < 6) { setPwMsg('Password minimal 6 karakter.'); return; }
     setPwMsg('');
     try {
-      const res = await fetch(`\${import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : '/api')}/auth/change-password`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : '/api')}/auth/change-password`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
