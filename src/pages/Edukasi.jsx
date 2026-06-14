@@ -25,7 +25,7 @@ export default function Edukasi() {
     }
   };
 
-  const getImageUrl = (url) => url ? (url.startsWith('data:') || url.startsWith('http') ? url : `http://localhost:5000${url}`) : '';
+  const getImageUrl = (url) => url ? (url.startsWith('data:') || url.startsWith('http') ? url : `\${import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace('/api', '') : (window.location.hostname === 'localhost' ? 'http://localhost:5000' : '')}\${url}`) : '';
 
   const categories = ['Semua', ...new Set(articles.map(a => a.category).filter(Boolean))];
 
