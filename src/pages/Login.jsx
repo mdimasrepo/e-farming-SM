@@ -22,6 +22,24 @@ const DEFAULT_ARTICLES = [
     content: 'Wereng adalah salah satu hama paling merugikan bagi tanaman padi. Deteksi dini dan penggunaan pestisida nabati dapat membantu meminimalisir kerusakan tanpa merusak ekosistem alami...',
     imageUrl: 'https://images.unsplash.com/photo-1599839619722-39751411ea63?w=800',
     link: '#'
+  },
+  {
+    title: 'Pentingnya Irigasi Tetes untuk Lahan Kering',
+    content: 'Teknologi irigasi tetes memungkinkan efisiensi penggunaan air hingga 80%. Sangat cocok diterapkan pada lahan kering dan tanaman hortikultura yang membutuhkan penyiraman presisi...',
+    imageUrl: 'https://images.unsplash.com/photo-1586771107445-d3ca888129ff?w=800',
+    link: '#'
+  },
+  {
+    title: 'Membuat Kompos Organik dari Limbah Pertanian',
+    content: 'Jangan buang sisa jerami dan kotoran ternak! Pelajari cara mengubah limbah pertanian menjadi pupuk kompos organik berkualitas tinggi yang dapat menyuburkan tanah Anda...',
+    imageUrl: 'https://images.unsplash.com/photo-1505471768190-27584ab7b2f9?w=800',
+    link: '#'
+  },
+  {
+    title: 'Smart Farming: Masa Depan Pertanian Digital',
+    content: 'Penerapan sensor IoT dan pencatatan digital membantu petani memantau kondisi lahan secara real-time. Temukan bagaimana teknologi bisa meningkatkan margin keuntungan Anda...',
+    imageUrl: 'https://images.unsplash.com/photo-1627920769843-5b8df7a76059?w=800',
+    link: '#'
   }
 ];
 
