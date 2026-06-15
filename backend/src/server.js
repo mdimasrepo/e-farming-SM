@@ -7,6 +7,8 @@ dotenv.config({ path: path.resolve(__dirname, '../.env') });
 import express from 'express';
 import cors from 'cors';
 import compression from 'compression';
+import { createServer } from 'http';
+import { Server } from 'socket.io';
 
 import authRoutes from './routes/auth.js';
 import lahanRoutes from './routes/lahan.js';
@@ -20,12 +22,24 @@ import konsultasiRoutes from './routes/konsultasi.js';
 import bugsRoutes from './routes/bugs.js';
 import jualbeliRoutes from './routes/jualbeli.js';
 import edukasiRoutes from './routes/edukasi.js';
+import chatRoutes from './routes/chat.js';
 
 import adminRoutes from './routes/admin.js';
 import { authMiddleware } from './middleware/auth.js';
 import { adminMiddleware } from './middleware/admin.js';
 
 const app = express();
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
+  cors: { origin: '*', methods: ['GET', 'POST'] }
+});
+
+// Pass io object to request so routes can use it if needed
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
+
 const PORT = process.env.PORT || 5000;
 
 // Global State untuk Settings
@@ -59,6 +73,7 @@ app.use('/api/konsultasi', konsultasiRoutes);
 app.use('/api/bugs', bugsRoutes);
 app.use('/api/jualbeli', jualbeliRoutes);
 app.use('/api/edukasi', edukasiRoutes);
+app.use('/api/chat', chatRoutes);
 
 // Admin Route Group
 app.use('/api/admin', adminRoutes);
@@ -147,7 +162,27 @@ process.on('uncaughtException', (err) => {
   console.error('🚨 Uncaught Exception:', err);
 });
 
-const server = app.listen(PORT, () => {
+// WebSocket Configuration
+io.on('connection', (socket) => {
+  console.log(`🔌 Client connected: ${socket.id}`);
+
+  // User/Admin join room
+  socket.on('join', (userId) => {
+    socket.join(`user_${userId}`);
+    console.log(`User/Admin joined room: user_${userId}`);
+  });
+
+  socket.on('join_admin', () => {
+    socket.join('admin_room');
+    console.log('Admin joined admin_room');
+  });
+
+  socket.on('disconnect', () => {
+    console.log(`🔌 Client disconnected: ${socket.id}`);
+  });
+});
+
+const server = httpServer.listen(PORT, () => {
   console.log(`\n🌱 Tani.Smart API Server berjalan di http://localhost:${PORT}`);
   console.log(`   Health check: http://localhost:${PORT}/api/health\n`);
 });

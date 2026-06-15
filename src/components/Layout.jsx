@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
+import GlobalChat from './GlobalChat';
 import api, { checkMaintenanceStatus, getUser } from '../utils/api';
 import './Layout.css';
 
@@ -53,6 +54,7 @@ export default function Layout() {
           <Outlet />
         </main>
       </div>
+      <GlobalChat user={getUser()} />
     </div>
   );
 }

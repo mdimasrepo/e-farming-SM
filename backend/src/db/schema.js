@@ -1,4 +1,4 @@
-import { pgTable, serial, varchar, decimal, integer, text, date, time, timestamp, bigint } from 'drizzle-orm/pg-core';
+import { pgTable, serial, varchar, decimal, integer, text, date, time, timestamp, bigint, boolean } from 'drizzle-orm/pg-core';
 
 // ==============================
 // USERS
@@ -175,3 +175,18 @@ export const edukasi = pgTable('edukasi', {
   content: text('content'),
   createdAt: timestamp('created_at').defaultNow(),
 });
+
+// ==============================
+// CHAT MESSAGES
+// ==============================
+export const chatMessages = pgTable('chat_messages', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  isFromAdmin: boolean('is_from_admin').default(false).notNull(),
+  message: text('message').notNull(),
+  isRead: boolean('is_read').default(false),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
+
+

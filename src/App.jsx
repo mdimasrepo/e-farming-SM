@@ -30,6 +30,7 @@ import AdminKonsultasi from './pages/admin/AdminKonsultasi';
 import AdminSettings from './pages/admin/AdminSettings';
 import AdminBugReports from './pages/admin/AdminBugReports';
 import AdminUserDetail from './pages/admin/AdminUserDetail';
+import AdminChat from './pages/admin/AdminChat';
 
 export default function App() {
   return (
@@ -68,6 +69,7 @@ export default function App() {
         <Route path="jadwal" element={<AdminJadwal />} />
         <Route path="edukasi" element={<AdminEdukasi />} />
         <Route path="konsultasi" element={<AdminKonsultasi />} />
+        <Route path="chat" element={<AdminChat />} />
         <Route path="bugs" element={<AdminBugReports />} />
         <Route path="settings" element={<AdminSettings />} />
       </Route>

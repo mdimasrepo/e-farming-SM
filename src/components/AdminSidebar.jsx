@@ -20,6 +20,7 @@ export default function AdminSidebar({ isOpen, setIsOpen }) {
   const contentNavItems = [
     { name: 'Konten Edukasi', path: '/admin/edukasi', icon: BookOpen },
     { name: 'Pakar Konsultasi', path: '/admin/konsultasi', icon: MessageSquare },
+    { name: 'Pusat Bantuan (Chat)', path: '/admin/chat', icon: MessageSquare },
   ];
 
   const systemNavItems = [
