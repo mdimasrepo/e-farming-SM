@@ -1,26 +1,27 @@
 .admin-chat-container {
   display: flex;
   height: calc(100vh - 120px);
-  background: white;
+  background: var(--bg-secondary);
   border-radius: 1rem;
   overflow: hidden;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
   margin-bottom: 2rem;
+  border: 1px solid var(--glass-border);
 }
 
 /* Sidebar List */
 .chat-sidebar {
   width: 320px;
-  background: #f8fafc;
-  border-right: 1px solid var(--gray-200);
+  background: var(--bg-primary);
+  border-right: 1px solid var(--glass-border);
   display: flex;
   flex-direction: column;
 }
 
 .chat-sidebar-header {
   padding: 1.5rem;
-  background: white;
-  border-bottom: 1px solid var(--gray-200);
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--glass-border);
 }
 
 .chat-sidebar-header h2 {
@@ -44,17 +45,18 @@
 .search-box input {
   width: 100%;
   padding: 0.75rem 1rem 0.75rem 2.5rem;
-  border: 1px solid var(--gray-200);
+  border: 1px solid var(--glass-border);
   border-radius: 2rem;
-  background: #f1f5f9;
+  background: var(--bg-primary);
+  color: var(--text-primary);
   outline: none;
   transition: all 0.2s;
 }
 
 .search-box input:focus {
-  background: white;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+  background: var(--bg-secondary);
+  border-color: var(--emerald-primary);
+  box-shadow: 0 0 0 3px var(--emerald-muted);
 }
 
 .chat-list {
@@ -65,7 +67,7 @@
 .chat-list-empty {
   padding: 2rem;
   text-align: center;
-  color: var(--gray-400);
+  color: var(--text-secondary);
 }
 
 .chat-list-item {
@@ -73,22 +75,22 @@
   padding: 1rem 1.5rem;
   gap: 1rem;
   cursor: pointer;
-  border-bottom: 1px solid var(--gray-200);
+  border-bottom: 1px solid var(--glass-border);
   transition: background 0.2s;
   position: relative;
 }
 
 .chat-list-item:hover {
-  background: #f1f5f9;
+  background: var(--glass-bg);
 }
 
 .chat-list-item.active {
-  background: #f0f2f5;
-  border-left: 4px solid var(--primary);
+  background: var(--bg-secondary);
+  border-left: 4px solid var(--emerald-primary);
 }
 
 .chat-list-item.unread {
-  background: white;
+  background: var(--glass-bg);
 }
 
 .chat-list-item.unread h4 {
@@ -129,18 +131,18 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  color: var(--gray-700);
+  color: var(--text-primary);
 }
 
 .chat-list-name-time span {
   font-size: 0.75rem;
-  color: var(--gray-500);
+  color: var(--text-secondary);
 }
 
 .chat-list-preview {
   margin: 0;
   font-size: 0.875rem;
-  color: var(--gray-500);
+  color: var(--text-secondary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -153,7 +155,7 @@
   transform: translateY(-50%);
   width: 10px;
   height: 10px;
-  background: var(--primary);
+  background: var(--emerald-primary);
   border-radius: 50%;
 }
 
@@ -162,7 +164,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: #efeae2; /* WA-style background */
+  background: var(--bg-primary); 
 }
 
 .chat-main-empty {
@@ -171,12 +173,12 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: var(--gray-400);
+  color: var(--text-secondary);
 }
 
 .chat-main-empty h3 {
   margin: 1rem 0 0.5rem 0;
-  color: var(--gray-500);
+  color: var(--text-primary);
 }
 
 .chat-main-header {
@@ -184,8 +186,8 @@
   display: flex;
   align-items: center;
   gap: 1rem;
-  border-bottom: 1px solid var(--gray-200);
-  background: white;
+  border-bottom: 1px solid var(--glass-border);
+  background: var(--bg-secondary);
 }
 
 .chat-main-header h3 {
@@ -223,15 +225,16 @@
 }
 
 .chat-bubble-wrapper.admin-reply .chat-bubble {
-  background: var(--primary);
+  background: var(--emerald-primary);
   color: white;
   border-bottom-right-radius: 0;
 }
 
 .chat-bubble-wrapper.user-msg .chat-bubble {
-  background: white;
-  color: #111b21;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
   border-bottom-left-radius: 0;
+  border: 1px solid var(--glass-border);
 }
 
 .chat-bubble p {
@@ -241,7 +244,7 @@
 
 .chat-time {
   font-size: 0.7rem;
-  color: rgba(0,0,0,0.45);
+  color: var(--text-secondary);
   display: block;
   text-align: right;
   margin-top: 4px;
@@ -249,8 +252,8 @@
 
 .chat-input-area {
   padding: 1rem 1.5rem;
-  background: #f0f2f5;
-  border-top: 1px solid rgba(0,0,0,0.05);
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--glass-border);
   display: flex;
   gap: 1rem;
   align-items: center;
@@ -258,17 +261,19 @@
 
 .chat-input-area input {
   flex: 1;
-  border: none;
+  border: 1px solid var(--glass-border);
   border-radius: 2rem;
   padding: 0.85rem 1.5rem;
   outline: none;
   font-size: 1rem;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   transition: all 0.2s;
 }
 
 .chat-input-area input:focus {
-  border-color: var(--primary);
+  border-color: var(--emerald-primary);
 }
 
 .chat-input-area button {
