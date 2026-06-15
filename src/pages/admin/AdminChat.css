@@ -223,8 +223,8 @@
 }
 
 .chat-bubble-wrapper.admin-reply .chat-bubble {
-  background: #d9fdd3; /* Soft green */
-  color: #111b21;
+  background: var(--primary);
+  color: white;
   border-bottom-right-radius: 0;
 }
 

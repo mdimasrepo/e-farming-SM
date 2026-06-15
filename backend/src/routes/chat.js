@@ -44,6 +44,36 @@ router.post('/send', authMiddleware, async (req, res) => {
       req.io.to(`user_${req.user.id}`).emit('newMessage', newMessage);
     }
 
+    // Auto-reply Logic
+    // Find the previous message (offset 1 because we just inserted the new message)
+    const previousMessages = await db.select()
+      .from(chatMessages)
+      .where(eq(chatMessages.userId, req.user.id))
+      .orderBy(desc(chatMessages.createdAt))
+      .limit(2);
+
+    const shouldAutoReply = previousMessages.length <= 1 || 
+      (new Date() - new Date(previousMessages[1].createdAt) > 30 * 60 * 1000);
+
+    if (shouldAutoReply) {
+      setTimeout(async () => {
+        try {
+          const [autoMsg] = await db.insert(chatMessages).values({
+            userId: req.user.id,
+            isFromAdmin: true,
+            message: "Halo! Pesan Anda telah kami terima. Saat ini admin sedang melayani pengguna lain dan akan segera membalas pesan Anda. Mohon kesediaannya untuk menunggu 😊",
+          }).returning();
+
+          if (req.io) {
+            req.io.to('admin_room').emit('newMessage', autoMsg);
+            req.io.to(`user_${req.user.id}`).emit('newMessage', autoMsg);
+          }
+        } catch (autoErr) {
+          console.error('Gagal mengirim auto-reply', autoErr);
+        }
+      }, 1500); // 1.5 second delay
+    }
+
     res.json(newMessage);
   } catch (err) {
     console.error(err);

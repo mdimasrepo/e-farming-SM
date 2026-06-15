@@ -109,6 +109,34 @@
   opacity: 1;
 }
 
+.chat-wa-fallback {
+  background: #fdfae5; /* Soft yellow warning-like bg */
+  padding: 0.5rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  font-size: 0.8rem;
+  color: #856404;
+}
+
+.wa-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: #25D366; /* WhatsApp official green */
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  text-decoration: none;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.wa-btn:hover {
+  background: #128C7E;
+}
+
 .chat-body {
   flex: 1;
   background: #efeae2; /* Soft chat background like WhatsApp */
@@ -157,8 +185,8 @@
 }
 
 .chat-bubble-wrapper.user .chat-bubble {
-  background: #d9fdd3; /* Soft green like WA */
-  color: #111b21;
+  background: var(--primary); 
+  color: white;
   border-bottom-right-radius: 0;
 }
 

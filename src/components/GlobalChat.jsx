@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { MessageSquare, X, Send, User } from 'lucide-react';
+import { MessageSquare, X, Send, User, MessageCircle } from 'lucide-react';
 import { io } from 'socket.io-client';
 import api from '../utils/api';
 import './GlobalChat.css';
@@ -118,6 +118,13 @@ export default function GlobalChat({ user }) {
             </button>
           </div>
           
+          <div className="chat-wa-fallback">
+            <span>Butuh respon cepat?</span>
+            <a href="https://wa.me/6281234567890" target="_blank" rel="noopener noreferrer" className="wa-btn">
+              <MessageCircle size={14} /> Hubungi WA Admin
+            </a>
+          </div>
+
           <div className="chat-body">
             {messages.length === 0 ? (
               <div className="chat-empty">
