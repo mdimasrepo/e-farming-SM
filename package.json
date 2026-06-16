@@ -9,7 +9,7 @@
     "dev:backend": "nodemon backend/src/server.js",
     "build": "vite build",
     "postinstall": "cd backend && npm install",
-    "start": "node backend/src/server.js",
+    "start": "node backend/src/db/migrate.js && node backend/src/server.js",
     "lint": "eslint .",
     "preview": "vite preview",
     "db:push": "cd backend && npx drizzle-kit push",
