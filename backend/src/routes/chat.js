@@ -4,7 +4,7 @@ import { chatMessages, users } from '../db/schema.js';
 import { eq, desc, asc } from 'drizzle-orm';
 import { authMiddleware } from '../middleware/auth.js';
 import { adminMiddleware } from '../middleware/admin.js';
-import { activeAdminSessions } from '../server.js';
+import { activeAdminSessions } from '../chatState.js';
 
 const router = express.Router();
 

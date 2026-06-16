@@ -9,6 +9,7 @@ import cors from 'cors';
 import compression from 'compression';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
+import { activeAdminSessions } from './chatState.js';
 
 import authRoutes from './routes/auth.js';
 import lahanRoutes from './routes/lahan.js';
@@ -161,9 +162,6 @@ process.on('unhandledRejection', (reason, promise) => {
 process.on('uncaughtException', (err) => {
   console.error('🚨 Uncaught Exception:', err);
 });
-
-// Track which userIds admin is actively chatting with (disables auto-reply)
-export const activeAdminSessions = new Set();
 
 // WebSocket Configuration
 io.on('connection', (socket) => {
