@@ -150,23 +150,26 @@ export default function AdminEdukasi() {
       {/* Modal Add/Edit */}
       {showModal && (
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
-          <div className="modal-content glass-panel animate-fade-in" onClick={e => e.stopPropagation()} style={{ maxWidth: '600px' }}>
-            <div className="modal-header">
+          <div className="modal-content glass-panel animate-fade-in" onClick={e => e.stopPropagation()} style={{ maxWidth: '650px', width: '95%', padding: '0', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+            <div className="modal-header" style={{ padding: '1.5rem 1.5rem 1rem 1.5rem', marginBottom: 0, borderBottom: '1px solid var(--glass-border)' }}>
               <h3>{editItem ? 'Edit Artikel Edukasi' : 'Tambah Artikel Edukasi'}</h3>
               <button className="btn-icon" onClick={() => setShowModal(false)}><X size={20} /></button>
             </div>
-            <div className="modal-body" style={{ textAlign: 'left', maxHeight: '65vh', overflowY: 'auto', padding: '0 5px' }}>
+            <div className="modal-body" style={{ textAlign: 'left', maxHeight: '65vh', overflowY: 'auto', padding: '1.5rem' }}>
               
               <div className="form-group">
-                <label>Foto Header / Thumbnail</label>
-                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                  <div style={{ width: '100px', height: '60px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: '1px dashed rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
-                    {imagePreview ? <img src={imagePreview} alt="preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <BookOpen size={24} color="rgba(255,255,255,0.3)" />}
+                <label>Foto Header / Thumbnail (Upload atau Paste URL)</label>
+                <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', marginTop: '8px' }}>
+                  <div style={{ width: '80px', height: '80px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: '1px dashed rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
+                    {imagePreview || form.imageUrl ? <img src={imagePreview || getImageUrl(form.imageUrl)} alt="preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <BookOpen size={24} color="rgba(255,255,255,0.3)" />}
                   </div>
-                  <div>
-                    <input type="file" accept="image/*" onChange={handleImageChange} style={{ display: 'none' }} id="edu-img-upload" />
-                    <label htmlFor="edu-img-upload" style={{ cursor: 'pointer', padding: '8px 16px', background: 'var(--emerald-muted)', color: 'var(--emerald-primary)', borderRadius: '6px', fontSize: '0.85rem', display: 'inline-block' }}>📷 Pilih Foto</label>
-                    {imagePreview && <button onClick={() => { setImagePreview(null); setForm(prev => ({...prev, imageUrl: ''})); }} style={{ marginLeft: '8px', background: 'transparent', border: 'none', color: 'var(--danger)', cursor: 'pointer', fontSize: '0.85rem' }}>✕ Hapus</button>}
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <input type="text" className="form-input" placeholder="https://contoh.com/gambar.jpg" value={form.imageUrl && form.imageUrl.startsWith('http') ? form.imageUrl : ''} onChange={e => { setForm({ ...form, imageUrl: e.target.value }); setImagePreview(null); }} />
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                      <input type="file" accept="image/*" onChange={handleImageChange} style={{ display: 'none' }} id="edu-img-upload" />
+                      <label htmlFor="edu-img-upload" style={{ cursor: 'pointer', padding: '6px 14px', background: 'var(--emerald-muted)', color: 'var(--emerald-primary)', borderRadius: '6px', fontSize: '0.8rem', display: 'inline-block', margin: 0 }}>📷 Upload Foto</label>
+                      {(imagePreview || form.imageUrl) && <button onClick={() => { setImagePreview(null); setForm(prev => ({...prev, imageUrl: ''})); }} style={{ background: 'transparent', border: 'none', color: 'var(--danger)', cursor: 'pointer', fontSize: '0.8rem' }}>✕ Hapus Gambar</button>}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -215,7 +218,7 @@ export default function AdminEdukasi() {
               </div>
 
             </div>
-            <div className="modal-footer" style={{ paddingTop: '1rem', borderTop: '1px solid var(--glass-border)', display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
+            <div className="modal-footer" style={{ padding: '1rem 1.5rem', background: 'rgba(0,0,0,0.1)', borderTop: '1px solid var(--glass-border)', display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
               <button className="btn-secondary" onClick={() => setShowModal(false)}>Batal</button>
               <button className="btn-primary" onClick={handleSave} disabled={saving || !form.title.trim()}>
                 {saving ? 'Menyimpan...' : editItem ? 'Update Artikel' : 'Simpan Artikel'}
