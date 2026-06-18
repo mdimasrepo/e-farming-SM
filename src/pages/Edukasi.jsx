@@ -43,7 +43,7 @@ export default function Edukasi() {
         </button>
 
         <div className="article-detail glass-panel">
-          <div className="article-hero" style={{ backgroundImage: `url(${getImageUrl(selectedArticle.imageUrl)})`, backgroundSize: 'cover', backgroundPosition: 'center', height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div className="article-hero" style={{ backgroundImage: selectedArticle.imageUrl ? `url("${getImageUrl(selectedArticle.imageUrl)}")` : undefined, backgroundSize: 'cover', backgroundPosition: 'center', height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             {!selectedArticle.imageUrl && <BookOpen size={64} color="rgba(255,255,255,0.5)" />}
           </div>
           <div className="article-body">
@@ -109,7 +109,7 @@ export default function Edukasi() {
           <div className="edu-grid">
             {filtered.map((item) => (
               <div key={item.id} className="edu-card glass-panel" onClick={() => setSelectedArticle(item)}>
-                <div className="edu-thumbnail" style={{ backgroundImage: `url(${getImageUrl(item.imageUrl)})`, backgroundSize: 'cover', backgroundPosition: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div className="edu-thumbnail" style={{ backgroundImage: item.imageUrl ? `url("${getImageUrl(item.imageUrl)}")` : undefined, backgroundSize: 'cover', backgroundPosition: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   {!item.imageUrl && <BookOpen size={36} color="rgba(255,255,255,0.3)" />}
                 </div>
                 <div className="edu-content">
