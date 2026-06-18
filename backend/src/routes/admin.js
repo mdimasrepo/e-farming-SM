@@ -249,35 +249,70 @@ router.delete('/bugs/:id', async (req, res) => {
 // ==============================
 router.post('/edukasi', async (req, res) => {
   try {
-    const data = { ...req.body };
-    delete data.id;
-    delete data.createdAt;
-    const [inserted] = await db.insert(edukasi).values(data).returning();
+    const { title, type, category, readTime, imageUrl, link, content } = req.body;
+    if (!title) return res.status(400).json({ error: 'Judul wajib diisi' });
+
+    const payload = {
+      title: title.trim(),
+      type: type || 'Artikel',
+      category: category || null,
+      readTime: readTime || null,
+      imageUrl: imageUrl || null,
+      link: link || null,
+      content: content || null,
+    };
+
+    const [inserted] = await db.insert(edukasi).values(payload).returning();
     res.json(inserted);
   } catch (err) {
-    res.status(500).json({ error: 'Gagal menambah edukasi' });
+    console.error('Gagal menambah edukasi:', err);
+    res.status(500).json({ error: 'Gagal menambah edukasi', detail: err.message });
   }
 });
 
 router.put('/edukasi/:id', async (req, res) => {
   try {
-    const data = { ...req.body };
-    delete data.id;
-    delete data.createdAt;
-    const [updated] = await db.update(edukasi).set(data).where(eq(edukasi.id, parseInt(req.params.id))).returning();
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) return res.status(400).json({ error: 'ID tidak valid' });
+
+    const { title, type, category, readTime, imageUrl, link, content } = req.body;
+    if (!title) return res.status(400).json({ error: 'Judul wajib diisi' });
+
+    const payload = {
+      title: title.trim(),
+      type: type || 'Artikel',
+      category: category || null,
+      readTime: readTime || null,
+      imageUrl: imageUrl || null,
+      link: link || null,
+      content: content || null,
+    };
+
+    const [updated] = await db.update(edukasi)
+      .set(payload)
+      .where(eq(edukasi.id, id))
+      .returning();
+
+    if (!updated) return res.status(404).json({ error: 'Artikel tidak ditemukan' });
     res.json(updated);
   } catch (err) {
-    res.status(500).json({ error: 'Gagal update edukasi' });
+    console.error('Gagal update edukasi:', err);
+    res.status(500).json({ error: 'Gagal update edukasi', detail: err.message });
   }
 });
 
 router.delete('/edukasi/:id', async (req, res) => {
   try {
-    await db.delete(edukasi).where(eq(edukasi.id, parseInt(req.params.id)));
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) return res.status(400).json({ error: 'ID tidak valid' });
+
+    await db.delete(edukasi).where(eq(edukasi.id, id));
     res.json({ message: 'Edukasi dihapus' });
   } catch (err) {
-    res.status(500).json({ error: 'Gagal hapus edukasi' });
+    console.error('Gagal hapus edukasi:', err);
+    res.status(500).json({ error: 'Gagal hapus edukasi', detail: err.message });
   }
 });
 
 export default router;
+
