@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { BookOpen, Plus, Edit3, Trash2, X } from 'lucide-react';
 import { getEdukasi, createAdminEdukasi, updateAdminEdukasi, deleteAdminEdukasi } from '../../utils/api';
 
@@ -148,7 +149,7 @@ export default function AdminEdukasi() {
       </div>
 
       {/* Modal Add/Edit */}
-      {showModal && (
+      {showModal && createPortal(
         <div className="modal-overlay" onClick={() => setShowModal(false)} style={{ zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div className="modal-content glass-panel animate-fade-in" onClick={e => e.stopPropagation()} style={{ maxWidth: '650px', width: '95%', maxHeight: '90vh', padding: '0', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
             <div className="modal-header" style={{ padding: '1.5rem 1.5rem 1rem 1.5rem', marginBottom: 0, borderBottom: '1px solid var(--glass-border)', flexShrink: 0 }}>
@@ -225,12 +226,13 @@ export default function AdminEdukasi() {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Delete Confirm */}
-      {deleteConfirm && (
-        <div className="modal-overlay" onClick={() => setDeleteConfirm(null)}>
+      {deleteConfirm && createPortal(
+        <div className="modal-overlay" onClick={() => setDeleteConfirm(null)} style={{ zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div className="modal-content glass-panel animate-fade-in" onClick={e => e.stopPropagation()} style={{ maxWidth:'350px' }}>
             <h3>Hapus Artikel?</h3>
             <p className="text-muted" style={{ margin: '1rem 0' }}>Artikel ini akan dihapus secara permanen dari sistem.</p>
@@ -239,7 +241,8 @@ export default function AdminEdukasi() {
               <button className="btn-primary" style={{ background: 'var(--danger)' }} onClick={() => handleDelete(deleteConfirm)}>Hapus</button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
     </div>
