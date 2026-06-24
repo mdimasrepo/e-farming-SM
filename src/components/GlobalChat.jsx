@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { MessageSquare, X, Send, User, MessageCircle } from 'lucide-react';
+import { MessageSquare, X, Send, User, MessageCircle, Trash2 } from 'lucide-react';
 import { io } from 'socket.io-client';
 import api from '../utils/api';
 import './GlobalChat.css';
@@ -47,6 +47,10 @@ export default function GlobalChat({ user }) {
       if (!isOpenRef.current && message.isFromAdmin) {
         setUnreadCount(prev => prev + 1);
       }
+    });
+
+    socket.on('deleteMessage', (messageId) => {
+      setMessages(prev => prev.filter(m => m.id !== messageId));
     });
 
     return () => {
@@ -101,6 +105,17 @@ export default function GlobalChat({ user }) {
       setIsSending(false);
     }
   }, [newMessage, isSending]);
+
+  const handleDeleteMessage = async (id) => {
+    if (!window.confirm('Hapus pesan ini?')) return;
+    try {
+      await api.delete(`/chat/${id}`);
+      setMessages(prev => prev.filter(m => m.id !== id));
+    } catch (err) {
+      console.error('Gagal menghapus pesan:', err);
+      alert('Gagal menghapus pesan');
+    }
+  };
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -159,12 +174,23 @@ export default function GlobalChat({ user }) {
                 >
                   <div className="chat-bubble">
                     <p>{msg.message}</p>
-                    <span className="chat-time">
-                      {new Date(msg.createdAt).toLocaleTimeString('id-ID', {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
-                    </span>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '8px' }}>
+                      <span className="chat-time">
+                        {new Date(msg.createdAt).toLocaleTimeString('id-ID', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </span>
+                      {!msg.isFromAdmin && (
+                        <button
+                          onClick={() => handleDeleteMessage(msg.id)}
+                          style={{ background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', padding: 0 }}
+                          title="Tarik Pesan"
+                        >
+                          <Trash2 size={12} />
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))

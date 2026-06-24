@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Search, Send, User, MessageSquare, Bot } from 'lucide-react';
+import { Search, Send, User, MessageSquare, Bot, Trash2 } from 'lucide-react';
 import { io } from 'socket.io-client';
 import api from '../../utils/api';
 import './AdminChat.css';
@@ -56,6 +56,10 @@ export default function AdminChat() {
           return [...prev, message];
         });
       }
+    });
+
+    socket.on('deleteMessage', (messageId) => {
+      setMessages(prev => prev.filter(m => m.id !== messageId));
     });
 
     fetchConversations();
@@ -138,6 +142,17 @@ export default function AdminChat() {
       setIsSending(false);
     }
   }, [newMessage, activeUser, isSending]);
+
+  const handleDeleteMessage = async (id) => {
+    if (!window.confirm('Hapus pesan ini? Pesan akan terhapus dari kedua belah pihak.')) return;
+    try {
+      await api.delete(`/chat/${id}`);
+      setMessages(prev => prev.filter(m => m.id !== id));
+    } catch (err) {
+      console.error('Gagal menghapus pesan:', err);
+      alert('Gagal menghapus pesan');
+    }
+  };
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -232,9 +247,18 @@ export default function AdminChat() {
                       <span className="bot-label"><Bot size={11} /> Bot</span>
                     )}
                     <p>{msg.message}</p>
-                    <span className="chat-time">
-                      {new Date(msg.createdAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
-                    </span>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '8px' }}>
+                      <span className="chat-time">
+                        {new Date(msg.createdAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                      <button
+                        onClick={() => handleDeleteMessage(msg.id)}
+                        style={{ background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', padding: 0 }}
+                        title="Hapus Pesan"
+                      >
+                        <Trash2 size={12} />
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
