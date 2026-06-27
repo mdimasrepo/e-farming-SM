@@ -30,8 +30,14 @@ function ruleBasedDiagnosis(plant, symptoms) {
 }
 
 // OpenRouter AI — text analysis
+const TEXT_MODELS = [
+  'deepseek/deepseek-r1-0528:free',
+  'google/gemma-3-27b-it:free',
+  'mistralai/mistral-7b-instruct:free',
+];
+
 async function aiTextDiagnosis(plant, symptoms) {
-  const apiKey = global.CUSTOM_API_KEY;
+  const apiKey = global.CUSTOM_API_KEY || process.env.OPENROUTER_API_KEY;
   if (!apiKey || apiKey.includes('your_')) return null;
 
   const prompt = `Kamu adalah sistem pakar diagnosa penyakit tanaman pertanian di Indonesia. Analisis gejala berikut.
@@ -42,33 +48,38 @@ Gejala: ${symptoms.join(', ')}
 Berikan respons HANYA dalam format JSON (tanpa markdown):
 {"name":"Nama penyakit","cause":"Penyebab","severity":"Rendah/Sedang/Tinggi/Sangat Tinggi","confidence":85,"explanation":"Penjelasan singkat","recommendations":["Rekomendasi 1","Rekomendasi 2","Rekomendasi 3","Rekomendasi 4","Rekomendasi 5"],"prevention":"Tips pencegahan"}`;
 
-  try {
-    const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json', 'HTTP-Referer': 'http://localhost:5000', 'X-Title': 'Tani.Smart' },
-      body: JSON.stringify({ model: 'openai/gpt-oss-120b:free', messages: [{ role: 'system', content: 'Kamu ahli pertanian Indonesia. Jawab dalam bahasa Indonesia dan format JSON.' }, { role: 'user', content: prompt }], temperature: 0.3, max_tokens: 800 }),
-    });
-    const data = await res.json();
-    if (!data.choices?.[0]) return null;
-    const json = JSON.parse(data.choices[0].message.content.trim().match(/\{[\s\S]*\}/)?.[0]);
-    return {
-      diagnosis: { name: json.name, plant, cause: json.cause, severity: json.severity, confidence: json.confidence || 85, matchedSymptoms: symptoms, totalSymptoms: symptoms.length, recommendations: json.recommendations || [], explanation: json.explanation || '', prevention: json.prevention || '' },
-      alternatives: [], source: 'ai', analyzedAt: new Date().toISOString(),
-    };
-  } catch (err) { console.error('AI text error:', err.message); return null; }
+  for (const model of TEXT_MODELS) {
+    try {
+      console.log(`Text diagnosa: trying ${model}...`);
+      const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json', 'HTTP-Referer': 'https://agrotani.railway.app', 'X-Title': 'Agro.Tani' },
+        body: JSON.stringify({ model, messages: [{ role: 'system', content: 'Kamu ahli pertanian Indonesia. Jawab dalam bahasa Indonesia dan format JSON.' }, { role: 'user', content: prompt }], temperature: 0.3, max_tokens: 800 }),
+      });
+      const data = await res.json();
+      if (!data.choices?.[0]) { console.error(`Text ${model} failed:`, data.error?.message); continue; }
+      const json = JSON.parse(data.choices[0].message.content.trim().match(/\{[\s\S]*\}/)?.[0]);
+      console.log(`Text diagnosa: success with ${model}`);
+      return {
+        diagnosis: { name: json.name, plant, cause: json.cause, severity: json.severity, confidence: json.confidence || 85, matchedSymptoms: symptoms, totalSymptoms: symptoms.length, recommendations: json.recommendations || [], explanation: json.explanation || '', prevention: json.prevention || '' },
+        alternatives: [], source: 'ai', analyzedAt: new Date().toISOString(),
+      };
+    } catch (err) { console.error(`AI text ${model} error:`, err.message); continue; }
+  }
+  return null;
 }
 
 // OpenRouter AI — vision/photo analysis (with multi-model fallback)
 const VISION_MODELS = [
-  'google/gemma-4-31b-it:free',
-  'google/gemma-4-26b-a4b-it:free',
+  'google/gemini-2.0-flash-exp:free',
   'google/gemma-3-27b-it:free',
+  'qwen/qwen2.5-vl-72b-instruct:free',
+  'meta-llama/llama-3.2-11b-vision-instruct:free',
   'nvidia/nemotron-nano-12b-v2-vl:free',
-  'google/gemma-3-12b-it:free',
 ];
 
 async function aiPhotoDiagnosis(imageBase64, plantHint) {
-  const apiKey = global.CUSTOM_API_KEY;
+  const apiKey = global.CUSTOM_API_KEY || process.env.OPENROUTER_API_KEY;
   if (!apiKey || apiKey.includes('your_')) return null;
 
   const prompt = `Kamu adalah sistem pakar diagnosa penyakit tanaman pertanian di Indonesia. Analisis foto tanaman ini secara detail.
@@ -88,7 +99,7 @@ Berikan respons HANYA dalam format JSON (tanpa markdown):
       console.log(`Vision: trying ${model}...`);
       const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json', 'HTTP-Referer': 'http://localhost:5000', 'X-Title': 'Tani.Smart' },
+        headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json', 'HTTP-Referer': 'https://agrotani.railway.app', 'X-Title': 'Agro.Tani' },
         body: JSON.stringify({
           model,
           messages: [

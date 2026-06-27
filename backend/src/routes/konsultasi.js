@@ -58,33 +58,54 @@ Aturan:
     
     messages.push({ role: 'user', content: message });
 
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': 'http://localhost:5000',
-        'X-Title': 'Tani.Smart Konsultasi',
-      },
-      body: JSON.stringify({
-        model: 'openai/gpt-oss-120b:free',
-        messages,
-        temperature: 0.7,
-        max_tokens: 600,
-      }),
-    });
+    const KONSULTASI_MODELS = [
+      'deepseek/deepseek-r1-0528:free',
+      'google/gemma-3-27b-it:free',
+      'mistralai/mistral-7b-instruct:free',
+    ];
 
-    const data = await response.json();
+    let lastError = null;
+    for (const model of KONSULTASI_MODELS) {
+      try {
+        console.log(`Konsultasi: trying ${model}...`);
+        const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${apiKey}`,
+            'Content-Type': 'application/json',
+            'HTTP-Referer': 'https://agrotani.railway.app',
+            'X-Title': 'Agro.Tani Konsultasi',
+          },
+          body: JSON.stringify({
+            model,
+            messages,
+            temperature: 0.7,
+            max_tokens: 600,
+          }),
+        });
 
-    if (!data.choices?.[0]) {
-      console.error('Konsultasi AI error:', data);
-      return res.status(503).json({ error: 'AI sedang tidak tersedia, coba lagi nanti.' });
+        const data = await response.json();
+
+        if (!data.choices?.[0]) {
+          lastError = data.error?.message || 'No response';
+          console.error(`Konsultasi ${model} failed:`, lastError);
+          continue;
+        }
+
+        console.log(`Konsultasi: success with ${model}`);
+        return res.json({
+          reply: data.choices[0].message.content.trim(),
+          timestamp: new Date().toISOString(),
+        });
+      } catch (err) {
+        lastError = err.message;
+        console.error(`Konsultasi ${model} error:`, err.message);
+        continue;
+      }
     }
 
-    res.json({
-      reply: data.choices[0].message.content.trim(),
-      timestamp: new Date().toISOString(),
-    });
+    // All models failed
+    return res.status(503).json({ error: 'AI sedang tidak tersedia, coba lagi nanti.' });
 
   } catch (err) {
     console.error('Konsultasi error:', err);
