@@ -39,8 +39,11 @@ const TEXT_MODELS = [
 ];
 
 async function aiTextDiagnosis(plant, symptoms) {
-  const apiKey = global.CUSTOM_API_KEY || process.env.OPENROUTER_API_KEY;
-  if (!apiKey || apiKey.includes('your_')) return null;
+  const apiKey = process.env.OPENROUTER_API_KEY || global.CUSTOM_API_KEY;
+  if (!apiKey) {
+    console.warn('[DiagnosaText] No API key found.');
+    return null;
+  }
 
   const prompt = `Kamu adalah sistem pakar diagnosa penyakit tanaman pertanian di Indonesia. Analisis gejala berikut.
 
@@ -78,12 +81,14 @@ Berikan respons HANYA dalam format JSON (tanpa markdown):
 const VISION_MODELS = [
   'nvidia/nemotron-nano-12b-v2-vl:free',
   'google/gemma-4-31b-it:free',
-  'nvidia/nemotron-3-super-120b-a12b:free',
 ];
 
 async function aiPhotoDiagnosis(imageBase64, plantHint) {
-  const apiKey = global.CUSTOM_API_KEY || process.env.OPENROUTER_API_KEY;
-  if (!apiKey || apiKey.includes('your_')) return null;
+  const apiKey = process.env.OPENROUTER_API_KEY || global.CUSTOM_API_KEY;
+  if (!apiKey) {
+    console.warn('[DiagnosaVision] No API key found.');
+    return null;
+  }
 
   const prompt = `Kamu adalah sistem pakar diagnosa penyakit tanaman pertanian di Indonesia. Analisis foto tanaman ini secara detail.
 ${plantHint ? `Petunjuk: tanaman ini kemungkinan ${plantHint}.` : ''}
@@ -159,8 +164,8 @@ router.post('/photo', async (req, res) => {
     const { image, plantHint } = req.body;
     if (!image) return res.status(400).json({ error: 'Foto tanaman harus diunggah.' });
     const result = await aiPhotoDiagnosis(image, plantHint);
-    if (!result) return res.status(503).json({ error: 'AI Vision tidak tersedia. Pastikan API key OpenRouter sudah dikonfigurasi.' });
-    return res.json(result);
+  if (!result) return res.status(503).json({ error: 'AI Vision sedang tidak tersedia. Semua model AI gagal merespons. Coba lagi nanti.' });
+  return res.json(result);
   } catch (err) { console.error('Photo diagnosa error:', err); res.status(500).json({ error: 'Gagal menganalisis foto.' }); }
 });
 
