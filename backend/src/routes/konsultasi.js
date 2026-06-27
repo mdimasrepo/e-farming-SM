@@ -19,7 +19,8 @@ router.get('/pakar', async (req, res) => {
 router.post('/chat', async (req, res) => {
   try {
     const apiKey = global.CUSTOM_API_KEY || process.env.OPENROUTER_API_KEY;
-    if (!apiKey || apiKey.includes('your_')) {
+    console.log('[Konsultasi] API Key found:', apiKey ? apiKey.substring(0, 15) + '...' : 'NONE');
+    if (!apiKey) {
       return res.status(503).json({ error: 'API AI belum dikonfigurasi.' });
     }
 
@@ -29,12 +30,16 @@ router.post('/chat', async (req, res) => {
       return res.status(400).json({ error: 'Pesan tidak boleh kosong.' });
     }
 
-    // Try finding the pakar from db
+    // Get pakar prompt from DB
     let systemPrompt = 'Kamu adalah ahli pertanian Indonesia yang berpengalaman luas.';
     if (pakarId) {
-      const pakarRecords = await db.select().from(konsultasiPakar).where(eq(konsultasiPakar.id, parseInt(pakarId)));
-      if (pakarRecords.length > 0 && pakarRecords[0].prompt) {
-        systemPrompt = pakarRecords[0].prompt;
+      try {
+        const pakarRecords = await db.select().from(konsultasiPakar).where(eq(konsultasiPakar.id, parseInt(pakarId)));
+        if (pakarRecords.length > 0 && pakarRecords[0].prompt) {
+          systemPrompt = pakarRecords[0].prompt;
+        }
+      } catch (dbErr) {
+        console.warn('[Konsultasi] Could not fetch pakar prompt:', dbErr.message);
       }
     }
 
@@ -49,15 +54,14 @@ Aturan:
 
     // Build message history
     const messages = [{ role: 'system', content: finalPrompt }];
-    
     if (history && Array.isArray(history)) {
       history.slice(-6).forEach(h => {
         messages.push({ role: h.role, content: h.content });
       });
     }
-    
     messages.push({ role: 'user', content: message });
 
+    // Models confirmed working (tested 2026-06-27)
     const KONSULTASI_MODELS = [
       'google/gemma-4-31b-it:free',
       'openai/gpt-oss-20b:free',
@@ -66,10 +70,9 @@ Aturan:
       'liquid/lfm-2.5-1.2b-instruct:free',
     ];
 
-    let lastError = null;
     for (const model of KONSULTASI_MODELS) {
       try {
-        console.log(`Konsultasi: trying ${model}...`);
+        console.log(`[Konsultasi] Trying model: ${model}`);
         const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
           method: 'POST',
           headers: {
@@ -89,28 +92,27 @@ Aturan:
         const data = await response.json();
 
         if (!data.choices?.[0]) {
-          lastError = data.error?.message || 'No response';
-          console.error(`Konsultasi ${model} failed:`, lastError);
+          console.error(`[Konsultasi] ${model} failed (HTTP ${response.status}):`, data.error?.message || JSON.stringify(data).substring(0, 150));
           continue;
         }
 
-        console.log(`Konsultasi: success with ${model}`);
+        console.log(`[Konsultasi] SUCCESS with ${model}`);
         return res.json({
           reply: data.choices[0].message.content.trim(),
           timestamp: new Date().toISOString(),
         });
       } catch (err) {
-        lastError = err.message;
-        console.error(`Konsultasi ${model} error:`, err.message);
+        console.error(`[Konsultasi] ${model} exception:`, err.message);
         continue;
       }
     }
 
     // All models failed
+    console.error('[Konsultasi] All models exhausted. None responded successfully.');
     return res.status(503).json({ error: 'AI sedang tidak tersedia, coba lagi nanti.' });
 
   } catch (err) {
-    console.error('Konsultasi error:', err);
+    console.error('[Konsultasi] Unhandled error:', err);
     res.status(500).json({ error: 'Gagal memproses konsultasi.' });
   }
 });

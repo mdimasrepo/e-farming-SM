@@ -62,9 +62,11 @@ export default function Konsultasi() {
         time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
       }]);
     } catch (err) {
+      console.error('Konsultasi error:', err?.message || err);
+      const errMsg = err?.message || 'Terjadi kesalahan.';
       setMessages(prev => [...prev, {
         role: 'assistant',
-        content: 'Maaf, terjadi kesalahan. Silakan coba lagi.',
+        content: `Maaf, ${errMsg}. Silakan coba lagi.`,
         time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
       }]);
     } finally {
