@@ -8,7 +8,7 @@ const DEFAULT_ARTICLES = [
   {
     title: 'Cara Meningkatkan Hasil Panen Padi di Musim Kemarau',
     content: 'Musim kemarau seringkali menjadi tantangan bagi petani padi. Namun dengan pengelolaan air yang tepat dan pemilihan varietas tahan kering, hasil panen bisa tetap maksimal. Berikut panduannya...',
-    imageUrl: 'https://images.unsplash.com/photo-1592982537447-6f2aa0c8cb08?w=800',
+    imageUrl: 'https://images.unsplash.com/photo-1605000797499-95a51c5269ae?w=800',
     link: '#'
   },
   {
@@ -32,13 +32,13 @@ const DEFAULT_ARTICLES = [
   {
     title: 'Membuat Kompos Organik dari Limbah Pertanian',
     content: 'Jangan buang sisa jerami dan kotoran ternak! Pelajari cara mengubah limbah pertanian menjadi pupuk kompos organik berkualitas tinggi yang dapat menyuburkan tanah Anda...',
-    imageUrl: 'https://images.unsplash.com/photo-1505471768190-27584ab7b2f9?w=800',
+    imageUrl: 'https://images.unsplash.com/photo-1595801968843-15794625fc96?w=800',
     link: '#'
   },
   {
     title: 'Smart Farming: Masa Depan Pertanian Digital',
     content: 'Penerapan sensor IoT dan pencatatan digital membantu petani memantau kondisi lahan secara real-time. Temukan bagaimana teknologi bisa meningkatkan margin keuntungan Anda...',
-    imageUrl: 'https://images.unsplash.com/photo-1627920769843-5b8df7a76059?w=800',
+    imageUrl: 'https://images.unsplash.com/photo-1589923188900-85dae523342b?w=800',
     link: '#'
   }
 ];

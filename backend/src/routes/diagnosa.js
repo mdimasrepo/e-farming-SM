@@ -77,10 +77,12 @@ Berikan respons HANYA dalam format JSON (tanpa markdown):
   return null;
 }
 
-// OpenRouter AI — vision/photo analysis (confirmed working models)
 const VISION_MODELS = [
-  'nvidia/nemotron-nano-12b-v2-vl:free',
+  'openrouter/free',
+  'google/gemma-4-26b-a4b-it:free',
+  'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free',
   'google/gemma-4-31b-it:free',
+  'nvidia/nemotron-nano-12b-v2-vl:free',
 ];
 
 async function aiPhotoDiagnosis(imageBase64, plantHint) {

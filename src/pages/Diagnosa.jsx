@@ -1,26 +1,61 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Stethoscope, CheckCircle, AlertTriangle, Loader, ChevronRight, RotateCcw, Shield, Bug, Leaf, Camera, UploadCloud, X, Image } from 'lucide-react';
+import { Stethoscope, CheckCircle, AlertTriangle, Loader, ChevronRight, RotateCcw, Shield, Bug, Leaf, Camera, UploadCloud, X, Image, Lightbulb } from 'lucide-react';
 import { getGejala, analyzeDiagnosa, analyzeDiagnosaPhoto } from '../utils/api';
 import './Ekstensi.css';
 
 const plantIcons = { Padi: '🌾', Jagung: '🌽', Tomat: '🍅', Cabai: '🌶️', Kedelai: '🌱' };
 
+const LOADING_TIPS = [
+  '🤖 AI sedang memproses setiap piksel pada foto Anda...',
+  '🔬 Mencocokkan pola visual dengan ribuan data penyakit tanaman...',
+  '🌿 Menganalisis warna, tekstur, dan bentuk daun...',
+  '📊 Menghitung tingkat kemungkinan setiap penyakit...',
+  '💡 Tips: Foto yang jernih dan dekat menghasilkan diagnosa lebih akurat!',
+  '🌾 Memeriksa tanda-tanda hama dan penyakit...',
+];
+
 export default function Diagnosa() {
-  const [mode, setMode] = useState(null); // 'gejala' or 'foto'
-  const [step, setStep] = useState(0); // 0: pilih mode, 1: tanaman, 2: gejala/foto, 3: hasil
+  const [mode, setMode] = useState(null);
+  const [step, setStep] = useState(0);
   const [gejalaData, setGejalaData] = useState([]);
   const [selectedPlant, setSelectedPlant] = useState('');
   const [selectedSymptoms, setSelectedSymptoms] = useState([]);
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [loadingGejala, setLoadingGejala] = useState(true);
+  const [loadingTipIdx, setLoadingTipIdx] = useState(0);
+  const [loadingSeconds, setLoadingSeconds] = useState(0);
 
   // Photo state
   const [photoPreview, setPhotoPreview] = useState(null);
   const [photoBase64, setPhotoBase64] = useState(null);
   const fileRef = useRef(null);
+  const tipTimerRef = useRef(null);
+  const secTimerRef = useRef(null);
 
   useEffect(() => { fetchGejala(); }, []);
+
+  // Start/stop tip cycling timer when loading
+  useEffect(() => {
+    if (loading && mode === 'foto') {
+      setLoadingTipIdx(0);
+      setLoadingSeconds(0);
+      tipTimerRef.current = setInterval(() => {
+        setLoadingTipIdx(prev => (prev + 1) % LOADING_TIPS.length);
+      }, 3000);
+      secTimerRef.current = setInterval(() => {
+        setLoadingSeconds(prev => prev + 1);
+      }, 1000);
+    } else {
+      clearInterval(tipTimerRef.current);
+      clearInterval(secTimerRef.current);
+      setLoadingSeconds(0);
+    }
+    return () => {
+      clearInterval(tipTimerRef.current);
+      clearInterval(secTimerRef.current);
+    };
+  }, [loading, mode]);
 
   const fetchGejala = async () => {
     try { setGejalaData(await getGejala()); } catch (err) { console.error(err); } finally { setLoadingGejala(false); }
@@ -173,12 +208,34 @@ export default function Diagnosa() {
           <h2>Unggah Foto Tanaman</h2>
           <p className="text-muted">Upload foto daun, batang, atau buah tanaman yang ingin didiagnosa.</p>
 
-          {!photoPreview ? (
+          {/* Loading overlay saat AI menganalisis */}
+          {loading ? (
+            <div className="photo-ai-loading glass-panel" style={{ textAlign: 'center', padding: '3rem 2rem' }}>
+              {/* Animated scan circle */}
+              <div style={{ position: 'relative', width: '120px', height: '120px', margin: '0 auto 1.5rem' }}>
+                <div style={{ position: 'absolute', inset: 0, border: '3px solid var(--emerald-primary)', borderRadius: '50%', opacity: 0.2 }} />
+                <div style={{ position: 'absolute', inset: 0, border: '3px solid transparent', borderTopColor: 'var(--emerald-primary)', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+                <div style={{ position: 'absolute', inset: '15px', border: '2px solid transparent', borderTopColor: 'var(--info)', borderRadius: '50%', animation: 'spin 1.5s linear infinite reverse' }} />
+                {photoPreview && <img src={photoPreview} alt="" style={{ position: 'absolute', inset: '20px', width: 'calc(100% - 40px)', height: 'calc(100% - 40px)', objectFit: 'cover', borderRadius: '50%', opacity: 0.8 }} />}
+              </div>
+              <h3 style={{ marginBottom: '0.5rem', color: 'var(--emerald-primary)' }}>🔍 AI Sedang Menganalisis Foto...</h3>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>Estimasi waktu: 20–60 detik &nbsp;·&nbsp; {loadingSeconds}s berlalu</p>
+              <div className="glass-panel" style={{ padding: '1rem 1.5rem', background: 'var(--bg-tertiary)', borderRadius: '12px', marginBottom: '1rem', minHeight: '52px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <Lightbulb size={18} color="var(--warning)" style={{ flexShrink: 0 }} />
+                <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.88rem', textAlign: 'left', transition: 'all 0.3s' }}>{LOADING_TIPS[loadingTipIdx]}</p>
+              </div>
+              <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
+                {[0,1,2].map(i => (
+                  <div key={i} style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--emerald-primary)', animation: `pulse 1.2s ease-in-out ${i * 0.2}s infinite` }} />
+                ))}
+              </div>
+            </div>
+          ) : !photoPreview ? (
             <div className="photo-upload-area glass-panel" onClick={() => fileRef.current?.click()}>
               <input ref={fileRef} type="file" accept="image/*" hidden onChange={handlePhotoSelect} />
               <UploadCloud size={56} color="var(--emerald-primary)" />
               <h3>Klik untuk memilih foto</h3>
-              <p className="text-muted">Atau drag & drop di sini (JPG, PNG — Max 5MB)</p>
+              <p className="text-muted">Atau drag &amp; drop di sini (JPG, PNG — Max 5MB)</p>
             </div>
           ) : (
             <div className="photo-preview-container">
@@ -194,12 +251,14 @@ export default function Diagnosa() {
             </div>
           )}
 
-          <div className="step-actions">
-            <button className="btn-secondary" onClick={() => { setStep(1); setPhotoPreview(null); setPhotoBase64(null); }}>Kembali</button>
-            <button className="btn-primary" disabled={!photoBase64 || loading} onClick={handleAnalyzePhoto}>
-              {loading ? <><Loader size={18} className="spin" /> AI Menganalisis Foto...</> : <>Analisis Foto <Camera size={18} /></>}
-            </button>
-          </div>
+          {!loading && (
+            <div className="step-actions">
+              <button className="btn-secondary" onClick={() => { setStep(1); setPhotoPreview(null); setPhotoBase64(null); }}>Kembali</button>
+              <button className="btn-primary" disabled={!photoBase64 || loading} onClick={handleAnalyzePhoto}>
+                {loading ? <><Loader size={18} className="spin" /> AI Menganalisis Foto...</> : <>Analisis Foto <Camera size={18} /></>}
+              </button>
+            </div>
+          )}
         </div>
       )}
 
