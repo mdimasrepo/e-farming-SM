@@ -93,8 +93,8 @@ export default function ManajemenLahan() {
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        alert("Ukuran gambar maksimal 5MB");
+      if (file.size > 10 * 1024 * 1024) {
+        alert("Ukuran gambar maksimal 10MB");
         return;
       }
       const reader = new FileReader();
@@ -297,7 +297,7 @@ export default function ManajemenLahan() {
               </div>
               
               <div className="form-group">
-                <label>Dokumentasi Gambar Lahan (Maks 5MB)</label>
+                <label>Dokumentasi Gambar Lahan (Maks 10MB)</label>
                 <div className="image-upload-wrapper" style={{ border: '2px dashed var(--border)', padding: '1rem', borderRadius: '8px', textAlign: 'center', cursor: 'pointer', position: 'relative' }}>
                   {form.imageUrl ? (
                     <img src={getImageUrl(form.imageUrl)} alt="Preview" style={{ width: '100%', maxHeight: '150px', objectFit: 'cover', borderRadius: '4px' }} />
