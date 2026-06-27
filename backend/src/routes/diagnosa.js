@@ -29,11 +29,13 @@ function ruleBasedDiagnosis(plant, symptoms) {
   return { diagnosis: results[0], alternatives: results.slice(1), source: 'expert-system', analyzedAt: new Date().toISOString() };
 }
 
-// OpenRouter AI — text analysis
+// OpenRouter AI — text analysis (models confirmed working 2026-06-27)
 const TEXT_MODELS = [
-  'deepseek/deepseek-r1-0528:free',
-  'google/gemma-3-27b-it:free',
-  'mistralai/mistral-7b-instruct:free',
+  'google/gemma-4-31b-it:free',
+  'openai/gpt-oss-20b:free',
+  'nvidia/nemotron-3-ultra-550b-a55b:free',
+  'nvidia/nemotron-3-super-120b-a12b:free',
+  'liquid/lfm-2.5-1.2b-instruct:free',
 ];
 
 async function aiTextDiagnosis(plant, symptoms) {
@@ -58,7 +60,10 @@ Berikan respons HANYA dalam format JSON (tanpa markdown):
       });
       const data = await res.json();
       if (!data.choices?.[0]) { console.error(`Text ${model} failed:`, data.error?.message); continue; }
-      const json = JSON.parse(data.choices[0].message.content.trim().match(/\{[\s\S]*\}/)?.[0]);
+      const raw = data.choices[0].message.content.trim();
+      const match = raw.match(/\{[\s\S]*\}/);
+      if (!match) { console.error(`Text ${model}: no JSON in response`); continue; }
+      const json = JSON.parse(match[0]);
       console.log(`Text diagnosa: success with ${model}`);
       return {
         diagnosis: { name: json.name, plant, cause: json.cause, severity: json.severity, confidence: json.confidence || 85, matchedSymptoms: symptoms, totalSymptoms: symptoms.length, recommendations: json.recommendations || [], explanation: json.explanation || '', prevention: json.prevention || '' },
@@ -69,13 +74,11 @@ Berikan respons HANYA dalam format JSON (tanpa markdown):
   return null;
 }
 
-// OpenRouter AI — vision/photo analysis (with multi-model fallback)
+// OpenRouter AI — vision/photo analysis (confirmed working models)
 const VISION_MODELS = [
-  'google/gemini-2.0-flash-exp:free',
-  'google/gemma-3-27b-it:free',
-  'qwen/qwen2.5-vl-72b-instruct:free',
-  'meta-llama/llama-3.2-11b-vision-instruct:free',
   'nvidia/nemotron-nano-12b-v2-vl:free',
+  'google/gemma-4-31b-it:free',
+  'nvidia/nemotron-3-super-120b-a12b:free',
 ];
 
 async function aiPhotoDiagnosis(imageBase64, plantHint) {

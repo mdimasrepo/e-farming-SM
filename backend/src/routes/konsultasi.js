@@ -59,9 +59,11 @@ Aturan:
     messages.push({ role: 'user', content: message });
 
     const KONSULTASI_MODELS = [
-      'deepseek/deepseek-r1-0528:free',
-      'google/gemma-3-27b-it:free',
-      'mistralai/mistral-7b-instruct:free',
+      'google/gemma-4-31b-it:free',
+      'openai/gpt-oss-20b:free',
+      'nvidia/nemotron-3-ultra-550b-a55b:free',
+      'nvidia/nemotron-3-super-120b-a12b:free',
+      'liquid/lfm-2.5-1.2b-instruct:free',
     ];
 
     let lastError = null;
