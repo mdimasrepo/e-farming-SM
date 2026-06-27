@@ -39,7 +39,7 @@
 .search-icon {
   position: absolute;
   left: 1rem;
-  color: var(--gray-400);
+  color: var(--text-secondary);
 }
 
 .search-box input {

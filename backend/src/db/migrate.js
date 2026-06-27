@@ -10,6 +10,16 @@ import pg from 'pg';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
+if (!process.env.DATABASE_URL) {
+  console.error('\n🚨 ERROR: DATABASE_URL tidak ditemukan di environment variables!');
+  console.error('👉 Harap tambahkan variabel lingkungan DATABASE_URL di dashboard Railway Anda.');
+  console.error('   1. Buka dashboard Railway Anda.');
+  console.error('   2. Masuk ke tab "Variables" di layanan backend.');
+  console.error('   3. Tambahkan key: DATABASE_URL dengan value koneksi database PostgreSQL Anda.');
+  console.error('   4. Klik Save dan Deploy ulang.\n');
+  process.exit(1);
+}
+
 const { Pool } = pg;
 
 const pool = new Pool({

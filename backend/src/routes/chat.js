@@ -120,7 +120,7 @@ router.get('/admin/conversations', authMiddleware, adminMiddleware, async (req, 
       const allUsers = await db.select({ id: users.id, name: users.name, photoUrl: users.photoUrl }).from(users);
       
       usersList = userIds.map(id => {
-        const userDetails = allUsers.find(u => u.id === id) || { name: 'Unknown User' };
+        const userDetails = allUsers.find(u => u.id === id) || { id, name: 'Pengguna Dihapus', photoUrl: null };
         return {
           user: userDetails,
           latestMessage: conversationsMap.get(id)

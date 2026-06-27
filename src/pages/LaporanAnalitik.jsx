@@ -33,7 +33,7 @@ export default function LaporanAnalitik() {
   const profit = totalRevenue - totalExpense;
 
   const summaryCards = [
-    { title: 'Total Panen', value: totalPanen > 0 ? `${totalPanen.toLocaleString('id-ID')} ton` : '—', change: '+12%', icon: PieChart, color: 'var(--emerald-primary)' },
+    { title: 'Total Panen', value: totalPanen > 0 ? `${totalPanen.toLocaleString('id-ID')} kwintal` : '—', change: '+12%', icon: PieChart, color: 'var(--emerald-primary)' },
     { title: 'Pendapatan', value: totalRevenue > 0 ? `Rp ${(totalRevenue).toLocaleString('id-ID')}` : '—', change: '+8%', icon: DollarSign, color: 'var(--info)' },
     { title: 'Pengeluaran', value: totalExpense > 0 ? `Rp ${(totalExpense).toLocaleString('id-ID')}` : '—', change: '-4%', icon: Activity, color: 'var(--danger)' },
     { title: 'Laba Bersih', value: profit !== 0 ? `Rp ${profit.toLocaleString('id-ID')}` : '—', change: profit >= 0 ? '+' : '', icon: TrendingUp, color: 'var(--warning)' },
@@ -52,7 +52,7 @@ export default function LaporanAnalitik() {
 
     // Produktivitas
     if (productivityData.length > 0) {
-      csv += 'PRODUKTIVITAS (Ton)\n';
+      csv += 'PRODUKTIVITAS (Kwintal)\n';
       csv += 'Bulan,Padi,Jagung,Kedelai,Total\n';
       productivityData.forEach(d => {
         const total = (d.padi || 0) + (d.jagung || 0) + (d.kedelai || 0);
@@ -222,7 +222,7 @@ export default function LaporanAnalitik() {
       {/* Data breakdown table */}
       {!loading && productivityData.length > 0 && (
         <div className="breakdown-section glass-panel">
-          <h2>Rincian Produktivitas per Bulan (Ton)</h2>
+          <h2>Rincian Produktivitas per Bulan (Kwintal)</h2>
           <div className="table-container">
             <table className="inventory-table">
               <thead>

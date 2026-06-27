@@ -243,7 +243,7 @@ export default function AdminChat() {
               {messages.map((msg, idx) => (
                 <div key={msg.id || idx} className={`chat-bubble-wrapper ${msg.isFromAdmin ? 'admin-reply' : 'user-msg'}`}>
                   <div className="chat-bubble">
-                    {msg.isFromAdmin && msg.message.includes('Auto-reply') && (
+                    {msg.isFromAdmin && msg.message.includes('Pesan Anda sudah kami terima') && (
                       <span className="bot-label"><Bot size={11} /> Bot</span>
                     )}
                     <p>{msg.message}</p>
@@ -253,7 +253,7 @@ export default function AdminChat() {
                       </span>
                       <button
                         onClick={() => handleDeleteMessage(msg.id)}
-                        style={{ background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', padding: 0 }}
+                        style={{ background: 'transparent', border: 'none', color: msg.isFromAdmin ? 'rgba(255,255,255,0.7)' : 'var(--text-secondary)', cursor: 'pointer', padding: 0 }}
                         title="Hapus Pesan"
                       >
                         <Trash2 size={12} />

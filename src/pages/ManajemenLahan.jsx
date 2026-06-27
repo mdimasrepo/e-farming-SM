@@ -48,7 +48,7 @@ export default function ManajemenLahan() {
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [form, setForm] = useState({ 
     name: '', area: '', soilType: 'Lempung', irrigation: 'Baik', status: 'Aktif', 
-    latitude: -5.397140, longitude: 105.266792, imageUrl: '', address: '' 
+    latitude: '', longitude: '', imageUrl: '', address: '' 
   });
 
   const fetchAddress = async (lat, lng) => {
@@ -115,7 +115,7 @@ export default function ManajemenLahan() {
     setEditItem(null);
     setForm({ 
       name: '', area: '', soilType: 'Lempung', irrigation: 'Baik', status: 'Aktif',
-      latitude: -5.397140, longitude: 105.266792, imageUrl: '', address: '' 
+      latitude: '', longitude: '', imageUrl: '', address: '' 
     });
     setShowModal(true);
   };
@@ -123,9 +123,11 @@ export default function ManajemenLahan() {
   const openEdit = (land) => {
     setEditItem(land);
     setForm({ 
-      name: land.name, area: land.area, soilType: land.soilType, irrigation: land.irrigation, status: land.status || 'Aktif',
-      latitude: land.latitude ? Number(land.latitude) : -5.397140,
-      longitude: land.longitude ? Number(land.longitude) : 105.266792,
+      name: land.name,
+      area: land.area ? (Number(land.area) * 10000).toString() : '',
+      soilType: land.soilType, irrigation: land.irrigation, status: land.status || 'Aktif',
+      latitude: land.latitude ? Number(land.latitude) : '',
+      longitude: land.longitude ? Number(land.longitude) : '',
       imageUrl: land.imageUrl || '',
       address: land.address || ''
     });
@@ -138,7 +140,7 @@ export default function ManajemenLahan() {
     try {
       const payload = {
         ...form,
-        area: Number(form.area),
+        area: Number(form.area) / 10000,
         latitude: parseFloat(form.latitude) || 0,
         longitude: parseFloat(form.longitude) || 0,
       };
@@ -164,7 +166,7 @@ export default function ManajemenLahan() {
     return matchStatus && matchSearch;
   });
 
-  const totalArea = lands.reduce((s, l) => s + (Number(l.area) || 0), 0);
+  const totalArea = lands.reduce((s, l) => s + (Number(l.area) * 10000 || 0), 0);
 
   return (
     <div className="manajemen-lahan animate-fade-in">
@@ -186,7 +188,7 @@ export default function ManajemenLahan() {
         </div>
         <div className="stat-mini glass-panel">
           <Ruler size={20} className="text-info" />
-          <div><strong>{totalArea.toFixed(1)}</strong> <span className="text-muted">Hektar Total</span></div>
+          <div><strong>{totalArea.toLocaleString('id-ID', { maximumFractionDigits: 2 })}</strong> <span className="text-muted">m² Total</span></div>
         </div>
         <div className="stat-mini glass-panel">
           <Droplets size={20} className="text-warning" />
@@ -228,7 +230,7 @@ export default function ManajemenLahan() {
                 <h3>{land.name}</h3>
                 {land.address && <p className="text-muted" style={{ fontSize: '0.8rem', marginBottom: '0.5rem', display: 'flex', gap: '4px' }}><Navigation size={12} style={{ marginTop: '2px' }}/> {land.address.length > 50 ? land.address.substring(0, 50) + '...' : land.address}</p>}
                 <div className="land-meta">
-                  <div className="meta-item"><Ruler size={16} /> <span>{land.area} Hektar</span></div>
+                  <div className="meta-item"><Ruler size={16} /> <span>{(Number(land.area) * 10000).toLocaleString('id-ID', { maximumFractionDigits: 2 })} m²</span></div>
                   <div className="meta-item"><Layers size={16} /> <span>{land.soilType}</span></div>
                   <div className="meta-item"><Droplets size={16} /> <span>Irigasi: {land.irrigation}</span></div>
                 </div>
@@ -257,8 +259,20 @@ export default function ManajemenLahan() {
               </div>
               <div className="form-row">
                 <div className="form-group">
-                  <label>Luas (Hektar)</label>
-                  <input type="number" step="0.1" value={form.area} onChange={e => setForm({ ...form, area: e.target.value })} placeholder="0.0" />
+                  <label>Luas Lahan (m²)</label>
+                  <input
+                    type="number"
+                    step="any"
+                    min="0"
+                    value={form.area}
+                    onChange={e => setForm({ ...form, area: e.target.value })}
+                    placeholder="Contoh: 5000"
+                  />
+                  {form.area && Number(form.area) > 0 && (
+                    <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '4px' }}>
+                      = {(Number(form.area) / 10000).toFixed(4)} Hektar
+                    </span>
+                  )}
                 </div>
                 <div className="form-group">
                   <label>Status</label>
@@ -309,11 +323,11 @@ export default function ManajemenLahan() {
                 <div className="form-row" style={{ marginBottom: '1rem' }}>
                   <div className="form-group" style={{ marginBottom: 0 }}>
                     <label style={{ fontSize: '0.85rem' }}>Latitude</label>
-                    <input type="text" inputMode="decimal" value={form.latitude} onChange={e => setForm({ ...form, latitude: e.target.value })} onBlur={e => { const val = parseFloat(e.target.value); if (!isNaN(val)) { setForm(prev => ({ ...prev, latitude: val })); fetchAddress(val, parseFloat(form.longitude) || 0); } }} placeholder="-7.123456" />
+                    <input type="text" inputMode="decimal" value={form.latitude} onChange={e => setForm({ ...form, latitude: e.target.value.replace(',', '.') })} onBlur={e => { const val = parseFloat(e.target.value.replace(',', '.')); if (!isNaN(val)) { setForm(prev => ({ ...prev, latitude: val })); fetchAddress(val, parseFloat(form.longitude) || 0); } }} placeholder="-7.123456" />
                   </div>
                   <div className="form-group" style={{ marginBottom: 0 }}>
                     <label style={{ fontSize: '0.85rem' }}>Longitude</label>
-                    <input type="text" inputMode="decimal" value={form.longitude} onChange={e => setForm({ ...form, longitude: e.target.value })} onBlur={e => { const val = parseFloat(e.target.value); if (!isNaN(val)) { setForm(prev => { fetchAddress(parseFloat(prev.latitude) || 0, val); return { ...prev, longitude: val }; }); } }} placeholder="110.123456" />
+                    <input type="text" inputMode="decimal" value={form.longitude} onChange={e => setForm({ ...form, longitude: e.target.value.replace(',', '.') })} onBlur={e => { const val = parseFloat(e.target.value.replace(',', '.')); if (!isNaN(val)) { setForm(prev => { fetchAddress(parseFloat(prev.latitude) || 0, val); return { ...prev, longitude: val }; }); } }} placeholder="110.123456" />
                   </div>
                 </div>
 
@@ -322,16 +336,23 @@ export default function ManajemenLahan() {
                   <textarea rows="2" value={form.address} onChange={e => setForm({ ...form, address: e.target.value })} placeholder="Alamat otomatis akan muncul saat Anda mengklik peta..."></textarea>
                 </div>
 
-                <div style={{ height: '250px', width: '100%', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border)' }}>
-                  <MapContainer center={[parseFloat(form.latitude) || -5.4, parseFloat(form.longitude) || 105.2]} zoom={13} style={{ height: '100%', width: '100%' }}>
-                    <TileLayer
-                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                      attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                    />
-                    <MapUpdater center={{ lat: parseFloat(form.latitude) || -5.4, lng: parseFloat(form.longitude) || 105.2 }} />
-                    <LocationMarker position={{ lat: parseFloat(form.latitude) || -5.4, lng: parseFloat(form.longitude) || 105.2 }} onChange={handleLocationChange} />
-                  </MapContainer>
-                </div>
+{(parseFloat(form.latitude) && parseFloat(form.longitude)) ? (
+                  <div style={{ height: '250px', width: '100%', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border)' }}>
+                    <MapContainer center={[parseFloat(form.latitude), parseFloat(form.longitude)]} zoom={13} style={{ height: '100%', width: '100%' }}>
+                      <TileLayer
+                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                      />
+                      <MapUpdater center={{ lat: parseFloat(form.latitude), lng: parseFloat(form.longitude) }} />
+                      <LocationMarker position={{ lat: parseFloat(form.latitude), lng: parseFloat(form.longitude) }} onChange={handleLocationChange} />
+                    </MapContainer>
+                  </div>
+                ) : (
+                  <div style={{ height: '120px', border: '2px dashed var(--border)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontSize: '0.85rem', gap: '8px' }}>
+                    <MapPin size={18} style={{ opacity: 0.5 }} />
+                    Isi koordinat atau gunakan tombol "Lokasi Saat Ini" untuk menampilkan peta
+                  </div>
+                )}
               </div>
             </div>
             <div className="modal-footer">

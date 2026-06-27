@@ -7,6 +7,7 @@
   --text-primary: #f0fdf4;
   --text-secondary: #a7bca7;
   
+  --primary: #10b981;
   --emerald-primary: #10b981;
   --emerald-hover: #34d399;
   --emerald-muted: rgba(16, 185, 129, 0.15);
@@ -28,6 +29,7 @@
   --text-primary: #1e293b;
   --text-secondary: #64748b;
   
+  --primary: #059669;
   --emerald-primary: #059669;
   --emerald-hover: #10b981;
   --emerald-muted: rgba(5, 150, 105, 0.1);

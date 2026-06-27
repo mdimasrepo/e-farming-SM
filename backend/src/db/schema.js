@@ -20,7 +20,7 @@ export const lahan = pgTable('lahan', {
   id: serial('id').primaryKey(),
   userId: integer('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
   name: varchar('name', { length: 100 }).notNull(),
-  area: decimal('area', { precision: 10, scale: 2 }).notNull(),
+  area: decimal('area', { precision: 12, scale: 6 }).notNull(),
   soilType: varchar('soil_type', { length: 50 }),
   irrigation: varchar('irrigation', { length: 20 }),
   status: varchar('status', { length: 20 }).default('Aktif'),
