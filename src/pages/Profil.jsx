@@ -24,14 +24,28 @@ export default function Profil() {
   const handlePhotoSelect = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    if (file.size > 2 * 1024 * 1024) {
-      alert('Ukuran foto maksimal 2MB.');
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Ukuran foto maksimal 5MB.');
       return;
     }
     const reader = new FileReader();
     reader.onload = (ev) => {
-      setPhotoPreview(ev.target.result);
-      setPhotoUrl(ev.target.result); // base64
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_DIM = 512; // Profile photo doesn't need to be too large
+        let { width, height } = img;
+        if (width > MAX_DIM || height > MAX_DIM) {
+          if (width > height) { height = Math.round((height * MAX_DIM) / width); width = MAX_DIM; }
+          else { width = Math.round((width * MAX_DIM) / height); height = MAX_DIM; }
+        }
+        canvas.width = width; canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        const compressed = canvas.toDataURL('image/jpeg', 0.85);
+        setPhotoPreview(compressed);
+        setPhotoUrl(compressed);
+      };
+      img.src = ev.target.result;
     };
     reader.readAsDataURL(file);
   };

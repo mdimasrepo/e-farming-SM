@@ -103,10 +103,25 @@ export default function Inventori() {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { alert('Ukuran gambar maksimal 5MB.'); return; }
     const reader = new FileReader();
     reader.onloadend = () => {
-      setImagePreview(reader.result);
-      setForm(prev => ({ ...prev, imageUrl: reader.result }));
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_DIM = 1024;
+        let { width, height } = img;
+        if (width > MAX_DIM || height > MAX_DIM) {
+          if (width > height) { height = Math.round((height * MAX_DIM) / width); width = MAX_DIM; }
+          else { width = Math.round((width * MAX_DIM) / height); height = MAX_DIM; }
+        }
+        canvas.width = width; canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        const compressed = canvas.toDataURL('image/jpeg', 0.8);
+        setImagePreview(compressed);
+        setForm(prev => ({ ...prev, imageUrl: compressed }));
+      };
+      img.src = reader.result;
     };
     reader.readAsDataURL(file);
   };

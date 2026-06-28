@@ -48,12 +48,26 @@ export default function DataTanaman() {
 
   const handleImageChange = (e, setTargetForm) => {
     const file = e.target.files[0];
-    if (file) {
-      if (file.size > 2 * 1024 * 1024) return alert('Ukuran gambar maksimal 2MB');
-      const reader = new FileReader();
-      reader.onloadend = () => setTargetForm(prev => ({ ...prev, imageUrl: reader.result }));
-      reader.readAsDataURL(file);
-    }
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) return alert('Ukuran gambar maksimal 5MB.');
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_DIM = 1024;
+        let { width, height } = img;
+        if (width > MAX_DIM || height > MAX_DIM) {
+          if (width > height) { height = Math.round((height * MAX_DIM) / width); width = MAX_DIM; }
+          else { width = Math.round((width * MAX_DIM) / height); height = MAX_DIM; }
+        }
+        canvas.width = width; canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        setTargetForm(prev => ({ ...prev, imageUrl: canvas.toDataURL('image/jpeg', 0.8) }));
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleSave = async () => {
