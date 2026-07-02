@@ -98,7 +98,7 @@ export default function Login() {
       <div className="login-split login-left">
         <div className="login-brand glass-panel">
           <img src="/logo.png" alt="Logo Mulya Jaya II" style={{ width: '48px', height: '48px', objectFit: 'contain', borderRadius: '8px' }} />
-          <h1 className="brand-title">Agro.Tani</h1>
+          <h1 className="brand-title">E-Farming</h1>
         </div>
         
         {/* Educational Slider */}
@@ -134,7 +134,7 @@ export default function Login() {
         </div>
 
         <div className="login-footer">
-          <p>&copy; 2026 Tani.Smart System</p>
+          <p>&copy; 2026 E-Farming System</p>
         </div>
         <div className="blob blob-1"></div>
         <div className="blob blob-2"></div>

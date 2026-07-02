@@ -167,7 +167,7 @@ export default function Konsultasi() {
             </div>
             <div className="pakar-actions">
               {p.wa && (
-                <a href={`https://wa.me/${p.wa}?text=${encodeURIComponent(`Halo ${p.name}, saya ingin konsultasi pertanian melalui Tani.Smart.`)}`} target="_blank" rel="noopener noreferrer" className="btn-wa" onClick={(e) => e.stopPropagation()}>
+                <a href={`https://wa.me/${p.wa}?text=${encodeURIComponent(`Halo ${p.name}, saya ingin konsultasi pertanian melalui E-Farming.`)}`} target="_blank" rel="noopener noreferrer" className="btn-wa" onClick={(e) => e.stopPropagation()}>
                   <Phone size={16} /> WhatsApp
                 </a>
               )}

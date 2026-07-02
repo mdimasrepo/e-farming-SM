@@ -52,7 +52,7 @@ export default function AdminDashboard() {
           <h2 style={{ fontSize: '1.75rem', fontWeight: 800, margin: 0 }}>
             Selamat Datang, <span className="text-gradient">Administrator</span> 👋
           </h2>
-          <p className="text-muted" style={{ marginTop: '4px' }}>Pantau seluruh aktivitas sistem Tani.Smart dari sini.</p>
+          <p className="text-muted" style={{ marginTop: '4px' }}>Pantau seluruh aktivitas sistem E-Farming dari sini.</p>
         </div>
         <div className="glass-panel" style={{ padding: '8px 16px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Clock size={16} className="text-emerald" />

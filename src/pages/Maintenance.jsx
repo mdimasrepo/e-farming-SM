@@ -68,7 +68,7 @@ export default function Maintenance() {
         </div>
         
         <h1 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '1rem' }}>
-          {countdown !== null ? 'Sistem Kembali Online! 🎉' : 'Tani.Smart Sedang Dalam Pemeliharaan'}
+          {countdown !== null ? 'Sistem Kembali Online! 🎉' : 'E-Farming Sedang Dalam Pemeliharaan'}
         </h1>
         <p className="text-muted" style={{ fontSize: '1.1rem', marginBottom: '2rem', lineHeight: 1.6 }}>
           {countdown !== null 

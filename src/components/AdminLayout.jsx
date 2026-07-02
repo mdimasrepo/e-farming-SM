@@ -11,11 +11,15 @@ export default function AdminLayout() {
   const location = useLocation();
   const [maintenance, setMaintenance] = useState(false);
   const user = getUser();
-  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
+    if (theme === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    } else {
+      document.documentElement.removeAttribute('data-theme');
+    }
     localStorage.setItem('theme', theme);
   }, [theme]);
 

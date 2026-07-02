@@ -25,7 +25,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
       <div className="sidebar-brand" style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <img src="/logo.png" alt="Logo Mulya Jaya II" style={{ width: '36px', height: '36px', objectFit: 'contain', borderRadius: '6px' }} />
-          <h2>Agro.Tani</h2>
+          <h2>E-Farming</h2>
         </div>
         <button 
           className="btn-icon mobile-close-btn" 

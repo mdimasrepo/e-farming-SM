@@ -47,7 +47,7 @@ export default function LaporanAnalitik() {
       return;
     }
 
-    let csv = 'LAPORAN PERTANIAN TANI.SMART\n';
+    let csv = 'LAPORAN PERTANIAN E-FARMING\n';
     csv += `Tanggal Unduh: ${new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}\n\n`;
 
     // Produktivitas

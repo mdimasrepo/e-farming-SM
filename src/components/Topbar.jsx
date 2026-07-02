@@ -6,7 +6,7 @@ import './Topbar.css';
 
 export default function Topbar({ toggleSidebar }) {
   const navigate = useNavigate();
-  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
   const [showDropdown, setShowDropdown] = useState(false);
   const [showNotif, setShowNotif] = useState(false);
   const [showBugForm, setShowBugForm] = useState(false);
@@ -22,7 +22,11 @@ export default function Topbar({ toggleSidebar }) {
   const user = getUser();
 
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
+    if (theme === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    } else {
+      document.documentElement.removeAttribute('data-theme');
+    }
     localStorage.setItem('theme', theme);
   }, [theme]);
 
