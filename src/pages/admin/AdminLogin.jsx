@@ -35,8 +35,8 @@ export default function AdminLogin() {
     <div className="login-container animate-fade-in" style={{ backgroundColor: '#1a2332' }}>
       <div className="login-split login-left" style={{ background: 'linear-gradient(135deg, #151c28 0%, #1e293b 100%)', color: 'white' }}>
         <div className="login-brand glass-panel" style={{ background: 'rgba(0,0,0,0.3)', borderColor: 'rgba(255,255,255,0.1)' }}>
-          <ShieldCheck className="text-emerald" size={32} />
-          <h1 className="brand-title" style={{ color: 'white' }}>Tani.Admin</h1>
+          <img src="/logo.png" alt="Logo Mulya Jaya II" style={{ width: '48px', height: '48px', objectFit: 'contain', borderRadius: '8px' }} />
+          <h1 className="brand-title" style={{ color: 'white' }}>Agro.Tani</h1>
         </div>
         <div className="left-content">
           <h2 className="left-headline">Pusat Kendali<br/>Sistem<br/><span className="text-gradient">Tani.Smart</span></h2>

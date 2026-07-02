@@ -23,8 +23,8 @@ export default function Sidebar({ isOpen, setIsOpen }) {
   return (
     <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
       <div className="sidebar-brand" style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <Leaf className="brand-icon" size={28} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <img src="/logo.png" alt="Logo Mulya Jaya II" style={{ width: '36px', height: '36px', objectFit: 'contain', borderRadius: '6px' }} />
           <h2>Agro.Tani</h2>
         </div>
         <button 

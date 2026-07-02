@@ -59,8 +59,8 @@ export default function Register() {
     <div className="login-container animate-fade-in">
       <div className="login-split login-left">
         <div className="login-brand glass-panel">
-          <Leaf className="brand-icon" size={32} />
-          <h1 className="brand-title">Tani.Smart</h1>
+          <img src="/logo.png" alt="Logo Mulya Jaya II" style={{ width: '48px', height: '48px', objectFit: 'contain', borderRadius: '8px' }} />
+          <h1 className="brand-title">Agro.Tani</h1>
         </div>
         <div className="left-content">
           <h2 className="left-headline">Bergabung<br/>Bersama<br/><span className="text-gradient">Petani Cerdas</span></h2>

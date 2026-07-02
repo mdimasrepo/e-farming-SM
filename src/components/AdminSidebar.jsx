@@ -40,9 +40,9 @@ export default function AdminSidebar({ isOpen, setIsOpen }) {
   return (
     <aside className={`admin-sidebar shadow-lg ${isOpen ? 'open' : ''}`}>
       <div className="admin-sidebar-brand" style={{ justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <ShieldCheck className="brand-icon text-emerald" size={28} />
-          <h2>Tani.Admin</h2>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <img src="/logo.png" alt="Logo Mulya Jaya II" style={{ width: '36px', height: '36px', objectFit: 'contain', borderRadius: '6px' }} />
+          <h2>Agro.Admin</h2>
         </div>
         <button 
           className="btn-icon mobile-close-btn" 
